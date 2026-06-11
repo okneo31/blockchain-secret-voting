@@ -222,6 +222,88 @@
   .toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
   .confetti{position:fixed;font-size:18px;pointer-events:none;z-index:65;animation:burst .9s ease-out forwards}
   @keyframes burst{to{transform:translate(var(--tx),var(--ty)) rotate(var(--r));opacity:0}}
+
+  /* ===================== v3.0 ===================== */
+  .leveltoggle{position:fixed;top:18px;left:18px;z-index:40;display:flex;align-items:center;gap:6px;
+    background:var(--card);border:2px solid var(--secret);border-radius:999px;padding:4px 4px 4px 12px;
+    box-shadow:var(--shadow);font-size:13px;font-weight:800}
+  .leveltoggle .lvlbl{color:var(--secret);font-size:12px;margin-right:2px}
+  .leveltoggle button{border:none;background:none;cursor:pointer;padding:7px 12px;border-radius:999px;
+    color:var(--ink2);font-weight:800;transition:.18s;font-family:inherit}
+  .leveltoggle button.act{background:var(--secret);color:#fff;box-shadow:0 4px 12px rgba(255,77,141,.35)}
+  .leveltoggle button:not(.act):hover{color:var(--secret)}
+  @media(max-width:600px){.leveltoggle,.langtoggle{position:static;margin:0 auto 10px}.langtoggle{justify-content:center}.leveltoggle{width:max-content}}
+
+  .depthnote{font-size:13px;font-weight:600;color:#8a5512;background:#ffdb9c;border:1px dashed #ffbe6a;
+    border-radius:12px;padding:10px 13px;margin-top:14px;line-height:1.55}
+  .feat-lead{color:var(--ink2);font-size:13.5px;font-weight:500;margin-bottom:14px}
+  .wbtns{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+  .btn-go{background:var(--watch);color:#fff}.btn-go:hover{filter:brightness(1.06)}
+  .btn-ghost{background:#ffe2ad;color:var(--ink);border:1px solid var(--line)}
+  .verdict{margin-top:14px;font-weight:800;font-size:14.5px;padding:11px 14px;border-radius:12px}
+  .verdict.ok{background:#e3f6ea;color:#1f7a44}.verdict.bad{background:#ffdada;color:#c0271f}
+
+  /* tamper chain */
+  .chain{display:flex;gap:10px;flex-wrap:wrap}
+  .cblock{flex:1 1 120px;min-width:110px;border:2px solid var(--line);border-radius:14px;padding:12px;background:#ffe9c4;transition:.3s}
+  .cblock .cb-n{font-weight:800;font-size:12.5px;color:var(--ink2)}
+  .cblock .cb-v{font-size:26px;margin:4px 0}
+  .cblock .cb-h{font-family:'Consolas',monospace;font-size:12px;color:var(--tamper);font-weight:700}
+  .cblock .cb-link{font-size:11px;color:var(--ink2);margin-top:5px;font-weight:700}
+  .cblock.broken{border-color:var(--bad);background:#ffdada;animation:shake .4s}
+  .cblock.broken .cb-h,.cblock.broken .cb-link{color:var(--bad)}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+
+  /* threshold keys */
+  .keys{display:grid;grid-template-columns:repeat(8,1fr);gap:8px}
+  @media(max-width:560px){.keys{grid-template-columns:repeat(5,1fr)}}
+  .keyb{aspect-ratio:1;border:2px solid var(--line);border-radius:12px;background:#ffe9c4;cursor:pointer;
+    font-size:19px;display:grid;place-items:center;transition:.15s;font-family:inherit}
+  .keyb.on{background:var(--watch);border-color:var(--watch);transform:scale(1.06)}
+  .vault{margin-top:16px;text-align:center;padding:18px;border-radius:16px;border:2px dashed var(--line);transition:.3s}
+  .vault.open{border-color:var(--good);background:#e3f6ea}
+  .vault .ve{font-size:46px}.vault .vt{font-weight:800;margin-top:6px;font-size:15.5px}
+
+  /* homomorphic */
+  .homo{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:center;font-size:22px;font-weight:800;min-height:90px}
+  .lockbox{border:2px solid var(--line);border-radius:14px;padding:10px 14px;background:#ffe9c4;min-width:64px;text-align:center}
+  .lockbox .lbk{font-size:12px;color:var(--ink2);font-weight:700}
+  .lockbox .lbn{font-size:22px;font-weight:800;margin-top:2px}
+  .lockbox.sum{border-color:var(--verify);background:#d8f5f0}
+  .lockbox.revealed{border-color:var(--good);background:#e3f6ea}
+
+  /* nullifier */
+  .idrow{display:flex;gap:12px;flex-wrap:wrap}
+  .idcard{flex:1 1 200px;border:2px solid var(--line);border-radius:14px;padding:14px;background:#ffe9c4}
+  .idcard .stamp{font-family:'Consolas',monospace;font-weight:800;color:var(--secret);margin-top:6px;font-size:15px}
+  .idcard .res{font-weight:800;margin-top:8px;min-height:20px;font-size:13.5px}
+
+  /* merkle */
+  .merkle{width:100%;overflow-x:auto}
+  .mrow{display:flex;justify-content:center;gap:6px;margin:7px 0;flex-wrap:nowrap}
+  .mnode{padding:7px 9px;border:2px solid var(--line);border-radius:10px;background:#ffe9c4;
+    font-family:'Consolas',monospace;font-size:11.5px;font-weight:700;cursor:default;transition:.2s;white-space:nowrap}
+  .mnode.leaf{cursor:pointer}.mnode.leaf:hover{border-color:var(--watch)}
+  .mnode.path{background:var(--watch);color:#fff;border-color:var(--watch)}
+  .mnode.root{background:var(--tamper);color:#fff;border-color:var(--tamper)}
+
+  /* verifier */
+  .checks{display:flex;flex-direction:column;gap:8px}
+  .chk{display:flex;align-items:center;gap:12px;border:1px solid var(--line);border-radius:12px;padding:12px;background:#ffe9c4;opacity:.5;transition:.35s}
+  .chk.on{opacity:1;border-color:var(--good)}
+  .chk .cbox{width:26px;height:26px;border-radius:7px;border:2px solid var(--line);display:grid;place-items:center;font-weight:900;color:#fff;flex-shrink:0;transition:.2s}
+  .chk.on .cbox{background:var(--good);border-color:var(--good)}
+  .chk .ct{font-weight:700;font-size:14px}
+
+  /* on/off-chain */
+  .oo{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center}
+  @media(max-width:640px){.oo{grid-template-columns:1fr}.ooarrow{transform:rotate(90deg)}}
+  .oobox{border:2px solid var(--line);border-radius:16px;padding:16px;background:#ffe9c4;transition:.3s}
+  .oobox h4{font-size:15px;margin-bottom:6px}.oobox p{font-size:12.5px;color:var(--ink2);font-weight:600}
+  .oobox.mismatch{border-color:var(--bad);background:#ffdada}
+  .ooarrow{font-size:22px;text-align:center;color:var(--ink2);font-weight:800}
+
+  .credit{margin-top:10px;font-weight:800;color:var(--ink);font-size:13.5px}
 </style>
 </head>
 <body>
@@ -229,6 +311,13 @@
 <div class="langtoggle">
   <button id="btn-ko" onclick="setLang('ko')">한국어</button>
   <button id="btn-en" onclick="setLang('en')">EN</button>
+</div>
+
+<div class="leveltoggle">
+  <span class="lvlbl" data-i18n="lvl.label"></span>
+  <button id="lvl-0" onclick="setLevel(0)" data-i18n="lvl.0"></button>
+  <button id="lvl-1" onclick="setLevel(1)" data-i18n="lvl.1"></button>
+  <button id="lvl-2" onclick="setLevel(2)" data-i18n="lvl.2"></button>
 </div>
 
 <div class="wrap">
@@ -348,7 +437,113 @@
     </div>
   </section>
 
-  <footer data-i18n="footer"></footer>
+  <!-- ===================== v3.0 INTERACTIVE LAB ===================== -->
+  <section>
+    <div class="h reveal"><h2 data-i18n="v3.lab.h"></h2><span data-i18n="v3.lab.s"></span></div>
+  </section>
+
+  <!-- 1. 위변조 공격 -->
+  <section><div class="h reveal"><h2 style="font-size:21px" data-i18n="v3.tamper.h"></h2></div>
+    <div class="card reveal">
+      <div class="feat-lead" data-i18n="v3.tamper.lead"></div>
+      <div class="chain" id="tchain"></div>
+      <div class="verdict ok" id="tverdict"></div>
+      <div class="wbtns"><button class="btn btn-go" id="tBtn" data-i18n="v3.tamper.btn"></button><button class="btn btn-ghost" id="tReset" data-i18n="v3.reset"></button></div>
+      <div class="depthnote" data-lv="v3.tamper.depth"></div>
+    </div></section>
+
+  <!-- 2. 임계 개표 9-of-15 -->
+  <section><div class="h reveal"><h2 style="font-size:21px" data-i18n="v3.thr.h"></h2></div>
+    <div class="card reveal">
+      <div class="feat-lead" data-i18n="v3.thr.lead"></div>
+      <div class="keys" id="keys"></div>
+      <div class="vault" id="vault"><div class="ve" id="vaultE">🔒</div><div class="vt" id="vaultT"></div></div>
+      <div class="wbtns"><button class="btn btn-ghost" id="thrReset" data-i18n="v3.reset"></button></div>
+      <div class="depthnote" data-lv="v3.thr.depth"></div>
+    </div></section>
+
+  <!-- 3. 동형암호 -->
+  <section><div class="h reveal"><h2 style="font-size:21px" data-i18n="v3.homo.h"></h2></div>
+    <div class="card reveal">
+      <div class="feat-lead" data-i18n="v3.homo.lead"></div>
+      <div class="homo" id="homo"></div>
+      <div class="wbtns"><button class="btn btn-go" id="homoAdd" data-i18n="v3.homo.add"></button><button class="btn btn-go" id="homoReveal" data-i18n="v3.homo.reveal"></button><button class="btn btn-ghost" id="homoReset" data-i18n="v3.reset"></button></div>
+      <div class="depthnote" data-lv="v3.homo.depth"></div>
+    </div></section>
+
+  <!-- 4. 무효화자 -->
+  <section><div class="h reveal"><h2 style="font-size:21px" data-i18n="v3.null.h"></h2></div>
+    <div class="card reveal">
+      <div class="feat-lead" data-i18n="v3.null.lead"></div>
+      <div class="idrow">
+        <div class="idcard"><b data-i18n="v3.null.voterA"></b><div class="stamp" id="stampA">—</div><div class="res" id="resA"></div>
+          <div class="wbtns"><button class="btn btn-go" data-null="0" data-i18n="v3.null.vote"></button></div></div>
+        <div class="idcard"><b data-i18n="v3.null.voterB"></b><div class="stamp" id="stampB">—</div><div class="res" id="resB"></div>
+          <div class="wbtns"><button class="btn btn-go" data-null="1" data-i18n="v3.null.vote"></button></div></div>
+      </div>
+      <div class="wbtns"><button class="btn btn-ghost" id="nullReset" data-i18n="v3.reset"></button></div>
+      <div class="depthnote" data-lv="v3.null.depth"></div>
+    </div></section>
+
+  <!-- 5. 종료 전 봉쇄 타이머 -->
+  <section><div class="h reveal"><h2 style="font-size:21px" data-i18n="v3.lock.h"></h2></div>
+    <div class="card reveal">
+      <div class="feat-lead" data-i18n="v3.lock.lead"></div>
+      <div style="text-align:center;padding:8px">
+        <div style="font-size:48px" id="lockE">🔒</div>
+        <div style="font-weight:800;font-size:22px;margin-top:4px" id="lockResult"></div>
+        <div style="color:var(--ink2);font-weight:700;margin-top:6px" id="lockTimer"></div>
+      </div>
+      <div class="wbtns" style="justify-content:center"><button class="btn btn-go" id="lockSkip" data-i18n="v3.lock.skip"></button><button class="btn btn-ghost" id="lockReset" data-i18n="v3.reset"></button></div>
+      <div class="depthnote" data-lv="v3.lock.depth"></div>
+    </div></section>
+
+  <!-- 6. 매표 방어 -->
+  <section><div class="h reveal"><h2 style="font-size:21px" data-i18n="v3.bribe.h"></h2></div>
+    <div class="card reveal">
+      <div class="feat-lead" data-i18n="v3.bribe.lead"></div>
+      <div style="font-weight:700;background:#ffdada;border:1px solid #ffb0a8;border-radius:12px;padding:12px;color:#a02a22" data-i18n="v3.bribe.demand"></div>
+      <div class="wbtns" id="bribeBtns"></div>
+      <div class="verdict bad" id="bribeRes" style="display:none"></div>
+      <div class="depthnote" data-lv="v3.bribe.depth"></div>
+    </div></section>
+
+  <!-- 7. 머클트리 -->
+  <section><div class="h reveal"><h2 style="font-size:21px" data-i18n="v3.merkle.h"></h2></div>
+    <div class="card reveal">
+      <div class="feat-lead" data-i18n="v3.merkle.lead"></div>
+      <div class="merkle" id="merkle"></div>
+      <div class="res" id="merkleRes" style="font-weight:700;text-align:center;margin-top:12px;min-height:22px"></div>
+      <div class="depthnote" data-lv="v3.merkle.depth"></div>
+    </div></section>
+
+  <!-- 8. 직접 검증 -->
+  <section><div class="h reveal"><h2 style="font-size:21px" data-i18n="v3.verify.h"></h2></div>
+    <div class="card reveal">
+      <div class="feat-lead" data-i18n="v3.verify.lead"></div>
+      <div class="checks" id="checks"></div>
+      <div class="verdict ok" id="verifyRes" style="display:none"></div>
+      <div class="wbtns"><button class="btn btn-go" id="verifyRun" data-i18n="v3.verify.run"></button><button class="btn btn-ghost" id="verifyReset" data-i18n="v3.reset"></button></div>
+      <div class="depthnote" data-lv="v3.verify.depth"></div>
+    </div></section>
+
+  <!-- 10. 온체인/오프체인 -->
+  <section><div class="h reveal"><h2 style="font-size:21px" data-i18n="v3.oo.h"></h2></div>
+    <div class="card reveal">
+      <div class="feat-lead" data-i18n="v3.oo.lead"></div>
+      <div class="oo">
+        <div class="oobox" id="ooOff"><h4 data-i18n="v3.oo.off.h"></h4><p data-i18n="v3.oo.off.p"></p><div id="ooOffState" style="font-weight:800;margin-top:8px"></div></div>
+        <div class="ooarrow">→<br><span style="font-size:11px" data-i18n="v3.oo.arrow"></span></div>
+        <div class="oobox" id="ooOn"><h4 data-i18n="v3.oo.on.h"></h4><p data-i18n="v3.oo.on.p"></p><div id="ooOnState" style="font-weight:800;margin-top:8px"></div></div>
+      </div>
+      <div class="wbtns"><button class="btn btn-go" id="ooTamper" data-i18n="v3.oo.btn"></button><button class="btn btn-ghost" id="ooReset" data-i18n="v3.reset"></button></div>
+      <div class="depthnote" data-lv="v3.oo.depth"></div>
+    </div></section>
+
+  <footer>
+    <div data-i18n="footer"></div>
+    <div class="credit" data-i18n="credit"></div>
+  </footer>
 </div>
 
 <!-- MODAL -->
@@ -694,6 +889,275 @@ function initReveal(){
 
 /* ===== 시작 ===== */
 buildCharts();render();initReveal();
+</script>
+
+<script>
+/* ===================== v3.0 — 난이도 + 인터랙티브 랩 ===================== */
+(function(){
+const $=id=>document.getElementById(id);
+function rh(n){let s='';const h='0123456789abcdef';for(let i=0;i<n;i++)s+=h[Math.floor(Math.random()*16)];return s;}
+
+/* ---------- 다국어 추가 ---------- */
+const V3={ko:{
+ 'lvl.label':'난이도','lvl.0':'초등(기본)','lvl.1':'중·고','lvl.2':'일반',
+ 'v3.lab.h':'🧪 직접 체험하는 보안 원리 (v3.0)','v3.lab.s':'버튼으로 공격해보고 막히는 걸 직접 확인하세요 · 난이도(좌측 상단)에 따라 설명 깊이가 바뀌어요',
+ 'v3.reset':'↺ 초기화',
+ 'v3.tamper.h':'🛡️ 위변조 공격 — 한 표를 몰래 바꿔보기','v3.tamper.lead':'블록 #2의 표를 몰래 바꾸면 어떻게 될까요? 버튼을 눌러보세요.',
+ 'v3.tamper.btn':'😈 블록 #2 표 몰래 바꾸기','v3.tamper.okv':'✅ 사슬 정상 — 모든 도장이 앞뒤로 맞아요',
+ 'v3.tamper.badv':'❌ 들통! 블록 #2부터 도장이 안 맞아 뒤가 전부 깨졌어요','v3.tamper.link':'↑ 앞 도장 일치','v3.tamper.linkbad':'↑ 앞 도장 불일치!',
+ 'v3.thr.h':'🔑 임계 개표 — 9곳이 모여야 열리는 금고 (9-of-15)','v3.thr.lead':'개표 열쇠를 15개 기관에 나눠줬어요. 열쇠를 눌러 기관을 모아보세요 — 9곳 미만이면 절대 안 열려요!',
+ 'v3.thr.locked':'🔒 잠김 — {n}/15 (9곳 필요, {m}곳 남음)','v3.thr.open':'🔓 열림! {n}/15 모여 합계만 공개됐어요',
+ 'v3.homo.h':'➕ 동형암호 — 잠근 채로 더하기','v3.homo.lead':'상자를 열지 않고도 안의 숫자를 더할 수 있어요. 개별 표는 끝까지 안 열고, 합계 상자 하나만 마지막에 열어요.',
+ 'v3.homo.add':'🔒 봉인표 더하기','v3.homo.reveal':'🔓 합계만 개봉','v3.homo.sumk':'합계(잠김)','v3.homo.sumk2':'합계(개봉)','v3.homo.vote':'봉인표',
+ 'v3.null.h':'🔏 무효화자 — 이중투표는 막고, 누군지는 비밀','v3.null.lead':'투표하면 세상에 하나뿐인 도장(무효화자)이 찍혀요. 같은 사람이 또 찍으려 하면 거부되지만, 도장만 봐선 누군지 몰라요.',
+ 'v3.null.voterA':'🙍 유권자 A','v3.null.voterB':'🙎 유권자 B','v3.null.vote':'투표하기',
+ 'v3.null.ok':'✅ 접수 — 도장 찍힘','v3.null.dup':'❌ 거부 — 이미 투표함 (도장 중복)','v3.null.note':'※ 도장은 해시라 거꾸로 신원을 알 수 없어요',
+ 'v3.lock.h':'⏰ 종료 전 개표 봉쇄 — 시한 금고','v3.lock.lead':'투표가 끝나기 전엔 개표위원조차 결과를 못 봐요. 카운트다운이 끝나야 열려요.',
+ 'v3.lock.hidden':'??? (종료 전 비공개)','v3.lock.revealed':'🔓 결과 공개! 🍇 포도당 우세','v3.lock.timer':'투표 종료까지 {n}초','v3.lock.done':'투표 종료','v3.lock.skip':'⏩ 종료 시각으로',
+ 'v3.bribe.h':'🙅 매표·강요 방어 — 증명할 수가 없어요','v3.bribe.lead':'누가 "찍은 거 증명하면 돈 줄게"라고 해요. 증명해 보려 하지만…',
+ 'v3.bribe.demand':'😈 매수자: "누구 찍었는지 증명해. 그럼 5만원 줄게."',
+ 'v3.bribe.try1':'📸 스크린샷 보여주기','v3.bribe.try2':'🧾 영수증 보여주기','v3.bribe.try3':'🔓 비밀키로 까보기',
+ 'v3.bribe.r1':'❌ 스크린샷은 얼마든지 위조 가능 — 증거가 안 돼요.','v3.bribe.r2':'❌ 영수증 자체가 발급되지 않아요 (영수증 없는 설계).','v3.bribe.r3':'❌ 내 표만 콕 집어 여는 키가 없어요 — 합계만 열려요.',
+ 'v3.bribe.win':'🎉 증명 실패! 증명할 방법이 없으니 표를 사고파는 게 무의미해져요.',
+ 'v3.merkle.h':'🌳 머클트리 — 내가 명부에 있음을 증명','v3.merkle.lead':'유권자 명부를 나무처럼 묶어 "뿌리(루트)" 하나만 공개해요. 잎(나)을 눌러 뿌리까지 경로로 증명해 보세요.',
+ 'v3.merkle.me':'나','v3.merkle.root':'뿌리','v3.merkle.res':'✅ 잎 → 뿌리 경로(노란 칸)로 "명부에 있음"이 증명됐어요. 명단 전체를 공개하지 않고도요!','v3.merkle.idle':'잎(🙋 나)을 눌러보세요',
+ 'v3.verify.h':'🔍 직접 검증 — "믿어달라" 말고 "확인하세요"','v3.verify.lead':'운영자의 비밀이나 협조 없이, 누구나 이 4가지를 직접 검사할 수 있어요. 버튼을 눌러 검증을 돌려보세요.',
+ 'v3.verify.c0':'명부 루트 정합성','v3.verify.c1':'무효화자 유일성 (이중투표 0)','v3.verify.c2':'동형 합산 정확성','v3.verify.c3':'개표 복호화 증명',
+ 'v3.verify.run':'▶ 검증 실행','v3.verify.done':'✅ 전부 통과 — 운영자 비밀 0개로 검증 완료!',
+ 'v3.oo.h':'🗂️ 온체인 / 오프체인 — 원본은 따로, 지문만 공개','v3.oo.lead':'표 원본을 전부 체인에 올리면 너무 무거워요. 원본은 따로 보관하고, 위변조 탐지용 "지문(해시)"만 공개 장부에 올려요.',
+ 'v3.oo.off.h':'📦 오프체인 (원본 보관)','v3.oo.off.p':'봉인표 원본 — 용량 크고 따로 보관','v3.oo.on.h':'⛓️ 온체인 (공개 장부)','v3.oo.on.p':'지문(해시)·루트만 — 위변조 즉시 탐지','v3.oo.arrow':'지문만 ↑',
+ 'v3.oo.btn':'😈 오프체인 원본 위조 시도','v3.oo.okoff':'원본 정상','v3.oo.okon':'지문 일치 ✅','v3.oo.badoff':'원본 몰래 변경됨 😈','v3.oo.badon':'지문 불일치 ❌ 위조 발각!',
+ 'credit':'🧑‍💻 만든이 — 안재현(Neo) CEO, TTL Co.,Ltd.'
+},en:{
+ 'lvl.label':'Level','lvl.0':'Kids','lvl.1':'Teen','lvl.2':'Adult',
+ 'v3.lab.h':'🧪 Hands-on security lab (v3.0)','v3.lab.s':'Attack with the buttons and watch them fail · explanation depth changes with the level (top-left)',
+ 'v3.reset':'↺ Reset',
+ 'v3.tamper.h':'🛡️ Tamper attack — try secretly changing a vote','v3.tamper.lead':'What happens if you secretly alter block #2? Press the button.',
+ 'v3.tamper.btn':'😈 Secretly alter block #2','v3.tamper.okv':'✅ Chain intact — every stamp matches front-to-back',
+ 'v3.tamper.badv':'❌ Busted! From block #2 on, the stamps no longer match — the rest collapses','v3.tamper.link':'↑ prev stamp OK','v3.tamper.linkbad':'↑ prev stamp BROKEN!',
+ 'v3.thr.h':'🔑 Threshold decryption — the 9-of-15 vault','v3.thr.lead':'The counting key is split among 15 institutions. Tap keys to gather them — under 9 it never opens!',
+ 'v3.thr.locked':'🔒 Locked — {n}/15 (need 9, {m} to go)','v3.thr.open':'🔓 Open! {n}/15 gathered — only the total is revealed',
+ 'v3.homo.h':'➕ Homomorphic encryption — adding while locked','v3.homo.lead':'You can add the numbers inside without opening the boxes. Individual votes never open — only the final sum box does.',
+ 'v3.homo.add':'🔒 Add a sealed vote','v3.homo.reveal':'🔓 Open only the sum','v3.homo.sumk':'Sum (locked)','v3.homo.sumk2':'Sum (opened)','v3.homo.vote':'vote',
+ 'v3.null.h':'🔏 Nullifier — block double-voting, keep identity secret','v3.null.lead':'Voting stamps a one-of-a-kind mark (nullifier). A repeat by the same person is rejected — yet the mark reveals no identity.',
+ 'v3.null.voterA':'🙍 Voter A','v3.null.voterB':'🙎 Voter B','v3.null.vote':'Vote',
+ 'v3.null.ok':'✅ Accepted — stamped','v3.null.dup':'❌ Rejected — already voted (duplicate stamp)','v3.null.note':'※ The stamp is a hash, so identity can’t be reversed',
+ 'v3.lock.h':'⏰ Pre-close lockdown — the time vault','v3.lock.lead':'Before voting closes, not even the trustees can see the result. It opens only when the countdown ends.',
+ 'v3.lock.hidden':'??? (hidden until close)','v3.lock.revealed':'🔓 Result revealed! 🍇 Grape leads','v3.lock.timer':'{n}s until voting closes','v3.lock.done':'Voting closed','v3.lock.skip':'⏩ Skip to close',
+ 'v3.bribe.h':'🙅 Anti-bribery — you simply can’t prove it','v3.bribe.lead':'Someone says “prove who you voted for and I’ll pay you.” You try, but…',
+ 'v3.bribe.demand':'😈 Briber: “Prove who you voted for and I’ll pay you ₩50,000.”',
+ 'v3.bribe.try1':'📸 Show a screenshot','v3.bribe.try2':'🧾 Show a receipt','v3.bribe.try3':'🔓 Open it with my key',
+ 'v3.bribe.r1':'❌ A screenshot can be faked — not proof.','v3.bribe.r2':'❌ No receipt is ever issued (receipt-free design).','v3.bribe.r3':'❌ There’s no key to open just my vote — only the total opens.',
+ 'v3.bribe.win':'🎉 Proof impossible! With no way to prove it, vote-buying becomes pointless.',
+ 'v3.merkle.h':'🌳 Merkle tree — prove you’re on the roll','v3.merkle.lead':'The voter roll is bundled into a tree; only the single root is public. Tap a leaf (you) to prove the path up to the root.',
+ 'v3.merkle.me':'me','v3.merkle.root':'ROOT','v3.merkle.res':'✅ The leaf→root path (yellow) proves you’re on the roll — without revealing the whole list!','v3.merkle.idle':'Tap a leaf (🙋 me)',
+ 'v3.verify.h':'🔍 Verify it yourself — not “trust me” but “check it”','v3.verify.lead':'With no operator secret or help, anyone can run these 4 checks. Press the button to run verification.',
+ 'v3.verify.c0':'Voter-roll root integrity','v3.verify.c1':'Nullifier uniqueness (zero double-votes)','v3.verify.c2':'Homomorphic sum correctness','v3.verify.c3':'Decryption proof of the tally',
+ 'v3.verify.run':'▶ Run verification','v3.verify.done':'✅ All passed — verified with zero operator secrets!',
+ 'v3.oo.h':'🗂️ On-chain / off-chain — originals apart, only fingerprints public','v3.oo.lead':'Putting every original on-chain is too heavy. Originals are stored off-chain; only tamper-detecting “fingerprints (hashes)” go on the public ledger.',
+ 'v3.oo.off.h':'📦 Off-chain (originals)','v3.oo.off.p':'Sealed ballots — bulky, kept separately','v3.oo.on.h':'⛓️ On-chain (public ledger)','v3.oo.on.p':'Only fingerprints/roots — instant tamper detection','v3.oo.arrow':'fingerprint only ↑',
+ 'v3.oo.btn':'😈 Try forging the off-chain original','v3.oo.okoff':'Original intact','v3.oo.okon':'Fingerprint matches ✅','v3.oo.badoff':'Original secretly changed 😈','v3.oo.badon':'Fingerprint mismatch ❌ forgery caught!',
+ 'credit':'🧑‍💻 Created by — Jaehyun Ahn (Neo), CEO, TTL Co.,Ltd.'
+}};
+Object.assign(DICT.ko,V3.ko);Object.assign(DICT.en,V3.en);
+
+/* ---------- 난이도별 설명(0초등/1중고/2일반) ---------- */
+const LV={ko:{
+ 'v3.tamper.depth':['한 칸만 바꿔도 뒤에 연결된 도장이 줄줄이 안 맞아 금방 들켜요.','각 블록은 앞 블록 내용의 해시를 담아요. 내용이 바뀌면 해시가 완전히 달라져, 다음 블록이 가진 값과 어긋납니다.','해시는 단방향·충돌저항 함수라 같은 해시를 유지한 채 내용만 바꾸는 건 계산적으로 불가능. 게다가 분산 합의로 다수 노드의 사슬을 동시에 위조해야 해 현실적으로 불가합니다.'],
+ 'v3.thr.depth':['너무 적으면 몇 곳이 짜고 조작할 위험, 너무 많이 필요하면 일부만 빠져도 개표가 멈춰요. 9는 그 사이 균형점이에요.','비밀을 15조각으로 나누되 어떤 9조각으로도 복원되게 만드는 t-of-n 비밀분산을 써요. 8조각으론 정보가 전혀 안 나와요.','샤미르 비밀분산: t차 다항식 위의 점 n개를 나눠주면 t+1개 점으로만 상수항(비밀)을 복원. 9-of-15는 담합 저항(≤8 무력)과 가용성(≤6 분실 허용)의 균형점입니다.'],
+ 'v3.homo.depth':['🔒3 + 🔒5 = 🔒8 처럼, 잠긴 상자끼리 더해도 잠긴 합이 나와요. 그 합만 열면 돼요.','덧셈을 보존하는 암호(가산 준동형)예요. 암호문끼리 연산하면 평문을 더한 것과 같은 암호문이 나와요.','지수형 ElGamal·Paillier 같은 가산 준동형 암호: E(a)·E(b)=E(a+b) 성질로 봉인표를 합쳐 집계하고, 마지막에 임계 복호화로 합계만 공개합니다.'],
+ 'v3.null.depth':['도장은 사람마다 딱 하나. 두 번째 도장은 같은 모양이라 바로 걸려요. 그래도 이름은 안 적혀 있어요.','무효화자 = 해시(개인비밀, 선거ID). 같은 사람·같은 선거면 항상 같은 값이라 중복이 잡히지만, 해시라 거꾸로 신원은 못 알아내요.','Semaphore식 nullifier=Hash(identitySecret, externalNullifier). 영지식증명으로 "명부 소속 + 올바른 nullifier 생성"을 신원 노출 없이 증명하고, 게시판은 nullifier 집합의 유일성만 강제합니다.'],
+ 'v3.lock.depth':['종료 전엔 결과가 ??? 로 잠겨 있어요. "초반 결과 보고 따라 찍기"를 막기 위해서예요.','개표 키를 종료 시각 전엔 모으지 않기로 위원들이 약속하거나, 시간이 지나야 풀리는 잠금을 써요.','시간잠금 암호(time-lock)나 위원 비공개 합의로 종료 전 부분개표를 원천 차단해, 중간 추세 유출에 의한 투표 편승(bandwagon)을 막습니다.'],
+ 'v3.bribe.depth':['내가 무엇을 찍었는지 남에게 보여줄 "증거"를 못 만들게 설계해요. 증거가 없으니 협박·매수가 소용없어요.','영수증 없는(receipt-free) 설계: 투표 후 어떤 산출물도 "이 후보를 찍었다"를 제3자에게 입증하지 못해요.','강제저항(coercion-resistance). MACI처럼 조정자에게 키를 바꿔 이전 표를 무효화·재투표할 수 있게 하면, 강요자가 본 "증거"가 사후에 뒤집혀 매표가 무의미해집니다.'],
+ 'v3.merkle.depth':['모두를 둘씩 묶고 또 묶어 맨 위 "뿌리" 하나만 공개해요. 내 칸에서 뿌리까지 길만 보이면 명부에 있다는 게 증명돼요.','해시를 쌍쌍이 합쳐 올라가는 머클트리. 잎에서 루트까지 형제 해시 몇 개(=경로)만 있으면 멤버십을 검증할 수 있어요.','멤버십 증명 크기가 O(log n) — 4,400만 명도 약 26단계면 충분. 루트만 온체인에 올리고, 영지식증명으로 경로 노출 없이 "루트에 속함"을 증명합니다.'],
+ 'v3.verify.depth':['결과가 맞는지 누구나 스스로 확인할 수 있어요. 누군가를 믿을 필요가 없어요.','검증에 필요한 코드와 회로가 전부 공개돼, 전문가·언론·시민 누구나 같은 검사를 재현할 수 있어요.','공개 검증성: 모든 영지식증명·동형합산·임계복호화 증명을 외부 도구가 독립 재검증하며, 검증에 어떤 비밀도 필요 없습니다.'],
+ 'v3.oo.depth':['무거운 원본은 따로 두고 작은 "지문"만 공개해요. 원본을 몰래 바꾸면 지문이 안 맞아 바로 들켜요.','원본의 해시(지문)만 체인에 올려요. 데이터 가용성은 별도 계층이 맡고, 무결성은 온체인 해시가 보장해요.','온체인은 명부 루트·무효화자 집합·집계 앵커 등 "무결성 앵커"만 저장. 오프체인 가용성 계층이 원본을 복제·공증하고 온체인 해시와 대조해 위변조를 탐지합니다.']
+},en:{
+ 'v3.tamper.depth':['Change one box and the stamps behind it stop matching in a row — caught instantly.','Each block holds a hash of the previous block. Change the content and the hash changes completely, clashing with the next block’s stored value.','Hashes are one-way and collision-resistant, so altering content while keeping the same hash is computationally infeasible — plus distributed consensus means you’d have to forge the chain on many nodes at once.'],
+ 'v3.thr.depth':['Too few and a clique could collude; too many and the count stalls if some drop out. 9 is the balance.','It uses t-of-n secret sharing: the secret splits into 15 pieces but any 9 reconstruct it — 8 pieces leak nothing.','Shamir secret sharing: share n points on a degree-t polynomial; only t+1 points recover the constant (secret). 9-of-15 balances collusion-resistance (≤8 powerless) and availability (≤6 loss tolerated).'],
+ 'v3.homo.depth':['Like 🔒3 + 🔒5 = 🔒8 — adding locked boxes yields a locked sum. Only that sum is opened.','It’s additively-homomorphic encryption that preserves addition: operating on ciphertexts equals adding the plaintexts.','Additively-homomorphic schemes like exponential ElGamal/Paillier: E(a)·E(b)=E(a+b), so sealed votes combine into the tally and only the total is opened via threshold decryption.'],
+ 'v3.null.depth':['One stamp per person. A second stamp looks identical and is caught at once — yet no name is written.','Nullifier = hash(personal secret, election ID). Same person + same election → same value (catches repeats), but being a hash it can’t be reversed to an identity.','Semaphore-style nullifier = Hash(identitySecret, externalNullifier). A ZK proof shows “member of the roll + correct nullifier” without revealing identity; the board only enforces nullifier-set uniqueness.'],
+ 'v3.lock.depth':['Before close, the result stays locked as ??? to stop “follow the early lead” voting.','Trustees agree not to gather the key before close, or use a lock that only releases after a set time.','Time-lock cryptography or private trustee agreement blocks any partial count before close, preventing bandwagon effects from leaked early trends.'],
+ 'v3.bribe.depth':['It’s designed so you can’t produce any “evidence” of how you voted — no evidence, so coercion and bribery don’t work.','Receipt-free design: after voting, no artifact can prove to a third party “I voted for this candidate.”','Coercion-resistance. Like MACI, a coordinator key-swap lets you nullify/re-cast a prior vote, so any “evidence” the coercer saw can be overturned later — making vote-buying pointless.'],
+ 'v3.merkle.depth':['Pair everyone up and up again until one “root” at the top is public. Show only the path from your slot to the root to prove you’re on the roll.','A Merkle tree hashing pairs upward. From a leaf to the root, just a few sibling hashes (the path) verify membership.','Membership proofs are O(log n) — even 44M voters need ~26 steps. Only the root goes on-chain, and a ZK proof shows “belongs to root” without revealing the path.'],
+ 'v3.verify.depth':['Anyone can check the result themselves — no need to trust anyone.','All verification code and circuits are public, so experts, press and citizens can reproduce the same checks.','Public verifiability: every ZK proof, homomorphic sum and threshold-decryption proof is independently re-checked by outside tools, needing no secret at all.'],
+ 'v3.oo.depth':['Keep bulky originals aside and publish only tiny “fingerprints.” Secretly change an original and its fingerprint won’t match — caught instantly.','Only the original’s hash (fingerprint) goes on-chain. A separate layer handles availability; on-chain hashes guarantee integrity.','On-chain stores only “integrity anchors” — roll root, nullifier set, tally anchor. An off-chain availability layer replicates/notarizes originals and detects tampering by comparing to on-chain hashes.']
+}};
+function pickLv(k){const a=(LV[lang]&&LV[lang][k])||LV.ko[k]||['','',''];return a[level]!==undefined?a[level]:a[0];}
+
+/* ---------- 모달 심화(레벨>0에서 추가) : 4대 보장 ---------- */
+const DEEP={ko:{
+ secret:{1:[['영지식증명으로 "내용 없이 규칙"만 증명','명부에 속함 + 한 표만임을 신원·선택 노출 없이 증명해, 부정은 막고 비밀은 지켜요.']],2:[['가산 준동형 + 익명 멤버십','봉인표는 합산만 가능하게 암호화되고, Semaphore식 익명집합으로 신원과 투표를 수학적으로 분리합니다.']]},
+ verify:{1:[['공개 게시판 + 영구 기록','모든 봉인표·증명이 변경 불가하게 남아 누구나 재계산할 수 있어요.']],2:[['공개 검증성','영지식증명·동형합산·임계복호화 증명을 외부 도구가 운영자 비밀 없이 독립 검증합니다.']]},
+ tamper:{1:[['해시 사슬','각 블록이 앞 블록 해시를 담아, 한 곳만 바꿔도 이후가 전부 어긋나요.']],2:[['단방향 해시 + 분산 합의','충돌저항 해시로 같은 해시 유지 위조가 불가하고, 다수 노드 사슬을 동시에 바꿔야 해 현실적으로 불가합니다.']]},
+ watch:{1:[['분산 + 합의','장부를 다수가 복제·검사하고, 다수 동의로만 기록이 추가돼요.']],2:[['신뢰의 분산(9-of-15)','단일 기관이 결과를 열거나 바꿀 수 없게 키와 권한을 다수 기관에 분산합니다.']]}
+},en:{
+ secret:{1:[['ZK proves "rules without content"','It proves roll-membership + single-vote without revealing identity or choice — blocking fraud while keeping secrecy.']],2:[['Additive homomorphism + anonymous membership','Sealed votes are encrypted to allow only summation, and a Semaphore-style anonymity set mathematically separates identity from vote.']]},
+ verify:{1:[['Public board + permanent record','Every sealed vote and proof remains immutable, so anyone can recompute.']],2:[['Public verifiability','ZK proofs, homomorphic sums and threshold-decryption proofs are independently verified by outside tools without operator secrets.']]},
+ tamper:{1:[['Hash chain','Each block carries the previous hash, so one change makes everything after it clash.']],2:[['One-way hash + distributed consensus','Collision-resistant hashing makes same-hash forgery impossible, and you’d have to change many nodes’ chains at once.']]},
+ watch:{1:[['Distribution + consensus','Many parties replicate and check the ledger, and records are added only by majority agreement.']],2:[['Distributed trust (9-of-15)','Keys and authority are split among many institutions so no single one can open or change the result.']]}
+}};
+
+/* ---------- 레벨 상태 ---------- */
+let level=(function(){const m=document.cookie.match(/(?:^|;\s*)lvl=([012])/);return m?+m[1]:0;})();
+function applyLevel(){
+  document.querySelectorAll('[data-lv]').forEach(el=>{el.textContent=pickLv(el.dataset.lv);});
+  [0,1,2].forEach(i=>{const b=$('lvl-'+i);if(b)b.classList.toggle('act',i===level);});
+  document.body.dataset.level=level;
+}
+window.setLevel=function(l){level=l;document.cookie='lvl='+l+';path=/;max-age=31536000';applyLevel();paintAll();
+  const ov=$('overlay');if(ov&&ov.classList.contains('on')&&curModalKey)openModal(curModalKey);};
+
+/* ---------- 모달 패치(심화 추가) ---------- */
+let curModalKey=null;
+const _openModal=openModal;
+openModal=function(k){
+  curModalKey=k;_openModal(k);
+  if(level>0 && DEEP[lang] && DEEP[lang][k]){
+    const body=$('mBody');if(!body)return;
+    const wrap=document.createElement('div');
+    wrap.style.cssText='margin-top:8px;padding-top:14px;border-top:2px dashed var(--line)';
+    let html='<div style="font-weight:800;font-size:14px;color:var(--secret);margin-bottom:8px">🔬 '+(lang==='en'?'Go deeper':'더 깊이')+' ('+pickLv('lvl.'+level)+')</div>';
+    for(let t=1;t<=level;t++){const arr=DEEP[lang][k][t];if(!arr)continue;
+      arr.forEach(r=>{html+='<div style="margin-bottom:10px"><div style="font-weight:800;font-size:14.5px">'+r[0]+'</div><div style="font-size:13.5px;color:var(--ink2);font-weight:500;margin-top:2px">'+r[1]+'</div></div>';});}
+    wrap.innerHTML=html;body.appendChild(wrap);
+  }
+};
+
+/* ===================== 위젯들 ===================== */
+/* 1) 위변조 공격 */
+const TVALS=['🍎','🍊','🍇','🍊'];let tHash=TVALS.map(()=>rh(4)),tampered=false;
+function paintTamper(){
+  const c=$('tchain');if(!c)return;
+  c.innerHTML=TVALS.map((v,i)=>{
+    const broken=tampered&&i>=1;
+    const link=i===0?'⛓️ genesis':(broken?T('v3.tamper.linkbad'):T('v3.tamper.link'));
+    return '<div class="cblock'+(broken?' broken':'')+'"><div class="cb-n">#'+(i+1).toString().padStart(3,'0')+'</div><div class="cb-v">'+(tampered&&i===1?'🍇':v)+'</div><div class="cb-h">'+(broken?rh(4):tHash[i])+'…</div><div class="cb-link">'+link+'</div></div>';
+  }).join('');
+  const vd=$('tverdict');vd.className='verdict '+(tampered?'bad':'ok');vd.textContent=tampered?T('v3.tamper.badv'):T('v3.tamper.okv');
+}
+
+/* 2) 임계 개표 */
+let keysOn=new Array(15).fill(false);
+function paintThr(){
+  const k=$('keys');if(!k)return;
+  if(k.children.length!==15){k.innerHTML='';for(let i=0;i<15;i++){const b=document.createElement('button');b.className='keyb';b.textContent='🗝️';b.onclick=()=>{keysOn[i]=!keysOn[i];paintThr();};k.appendChild(b);}}
+  let n=0;keysOn.forEach((o,i)=>{k.children[i].classList.toggle('on',o);if(o)n++;});
+  const open=n>=9,v=$('vault');v.classList.toggle('open',open);
+  $('vaultE').textContent=open?'🔓📊':'🔒';
+  $('vaultT').textContent=open?T('v3.thr.open').replace('{n}',n):T('v3.thr.locked').replace('{n}',n).replace('{m}',Math.max(0,9-n));
+}
+
+/* 3) 동형암호 */
+let homoAdds=[3,5],homoReveal=false;
+function paintHomo(){
+  const h=$('homo');if(!h)return;
+  let parts=homoAdds.map(n=>'<div class="lockbox"><div class="lbk">🔒 '+T('v3.homo.vote')+'</div><div class="lbn">🔒'+n+'</div></div>').join('<span>+</span>');
+  const sum=homoAdds.reduce((a,b)=>a+b,0);
+  parts+='<span>=</span><div class="lockbox '+(homoReveal?'revealed':'sum')+'"><div class="lbk">'+(homoReveal?T('v3.homo.sumk2'):T('v3.homo.sumk'))+'</div><div class="lbn">'+(homoReveal?'✅'+sum:'🔒'+sum)+'</div></div>';
+  h.innerHTML=parts;
+}
+
+/* 4) 무효화자 */
+let nullStamp=[null,null];
+function paintNull(){
+  $('stampA').textContent=nullStamp[0]||'—';$('stampB').textContent=nullStamp[1]||'—';
+}
+function nullVote(i){
+  const res=$(i===0?'resA':'resB');
+  if(nullStamp[i]){res.textContent=T('v3.null.dup');res.style.color='var(--bad)';}
+  else{nullStamp[i]='🔏 '+rh(4);res.textContent=T('v3.null.ok')+' · '+T('v3.null.note');res.style.color='var(--good)';paintNull();}
+}
+
+/* 5) 종료 전 봉쇄 타이머 */
+let lockN=8,lockRevealed=false,lockTimer=null;
+function paintLock(){
+  $('lockE').textContent=lockRevealed?'🔓':'🔒';
+  $('lockResult').textContent=lockRevealed?T('v3.lock.revealed'):T('v3.lock.hidden');
+  $('lockTimer').textContent=lockRevealed?T('v3.lock.done'):T('v3.lock.timer').replace('{n}',lockN);
+}
+function lockStart(){clearInterval(lockTimer);lockN=8;lockRevealed=false;paintLock();
+  lockTimer=setInterval(()=>{lockN--;if(lockN<=0){lockN=0;lockRevealed=true;clearInterval(lockTimer);}paintLock();},1000);}
+
+/* 6) 매표 방어 */
+let bribeTried=new Set();
+function paintBribe(){
+  const b=$('bribeBtns');if(!b)return;
+  b.innerHTML='';[1,2,3].forEach(n=>{const btn=document.createElement('button');btn.className='btn btn-ghost';btn.textContent=T('v3.bribe.try'+n);
+    btn.onclick=()=>{bribeTried.add(n);const r=$('bribeRes');r.style.display='block';r.className='verdict '+(bribeTried.size>=3?'ok':'bad');
+      r.textContent=(bribeTried.size>=3?T('v3.bribe.win'):T('v3.bribe.r'+n));};b.appendChild(btn);});
+}
+
+/* 7) 머클트리 */
+function paintMerkle(){
+  const m=$('merkle');if(!m||m.dataset.built)return;m.dataset.built='1';
+  const leaves=8;let html='';
+  // root, level2(2), level1(4), leaves(8) — 위에서 아래로
+  html+='<div class="mrow"><div class="mnode root" data-r="1">'+'■'+'</div></div>';
+  html+='<div class="mrow">'+[0,1].map(i=>'<div class="mnode" data-l2="'+i+'">'+rh(3)+'</div>').join('')+'</div>';
+  html+='<div class="mrow">'+[0,1,2,3].map(i=>'<div class="mnode" data-l1="'+i+'">'+rh(3)+'</div>').join('')+'</div>';
+  html+='<div class="mrow">'+Array.from({length:leaves},(_,i)=>'<div class="mnode leaf" data-leaf="'+i+'">'+(i===2?'🙋':rh(2))+'</div>').join('')+'</div>';
+  m.innerHTML=html;
+  m.querySelectorAll('.leaf').forEach(el=>el.addEventListener('click',()=>{
+    const i=+el.dataset.leaf;m.querySelectorAll('.mnode').forEach(n=>n.classList.remove('path'));
+    el.classList.add('path');
+    m.querySelector('[data-l1="'+Math.floor(i/2)+'"]').classList.add('path');
+    m.querySelector('[data-l2="'+Math.floor(i/4)+'"]').classList.add('path');
+    m.querySelector('[data-r="1"]').classList.add('path');
+    $('merkleRes').textContent=T('v3.merkle.res');$('merkleRes').style.color='var(--good)';
+  }));
+}
+function paintMerkleText(){const r=$('merkleRes');if(r&&!r.textContent.trim())r.textContent=T('v3.merkle.idle');
+  const root=document.querySelector('#merkle [data-r]');if(root)root.textContent='■';}
+
+/* 8) 직접 검증 */
+let verifyRun=false;
+function buildChecks(){const c=$('checks');if(!c||c.dataset.built)return;c.dataset.built='1';
+  for(let i=0;i<4;i++){const d=document.createElement('div');d.className='chk';d.id='chk'+i;
+    d.innerHTML='<div class="cbox">✓</div><div class="ct" data-i18n="v3.verify.c'+i+'"></div>';c.appendChild(d);}}
+function runVerify(){verifyRun=true;[0,1,2,3].forEach(i=>setTimeout(()=>{$('chk'+i).classList.add('on');
+  if(i===3){const r=$('verifyRes');r.style.display='block';r.textContent=T('v3.verify.done');}},(i+1)*450));}
+function resetVerify(){verifyRun=false;[0,1,2,3].forEach(i=>{const e=$('chk'+i);if(e)e.classList.remove('on');});$('verifyRes').style.display='none';}
+
+/* 10) 온체인/오프체인 */
+let ooForged=false;
+function paintOO(){
+  $('ooOff').classList.toggle('mismatch',ooForged);$('ooOn').classList.toggle('mismatch',ooForged);
+  $('ooOffState').textContent=ooForged?T('v3.oo.badoff'):T('v3.oo.okoff');
+  $('ooOnState').textContent=ooForged?T('v3.oo.badon'):T('v3.oo.okon');
+}
+
+/* ---------- 페인트 모음 ---------- */
+function paintAll(){paintTamper();paintThr();paintHomo();paintNull();paintLock();paintBribe();paintMerkleText();paintOO();
+  document.querySelectorAll('#checks [data-i18n]').forEach(el=>{el.textContent=T(el.dataset.i18n);});}
+
+/* ---------- 이벤트 ---------- */
+function wire(){
+  $('tBtn').onclick=()=>{tampered=true;paintTamper();};
+  $('tReset').onclick=()=>{tampered=false;tHash=TVALS.map(()=>rh(4));paintTamper();};
+  $('thrReset').onclick=()=>{keysOn=new Array(15).fill(false);paintThr();};
+  $('homoAdd').onclick=()=>{if(homoAdds.length<6){homoAdds.push(1+Math.floor(Math.random()*5));homoReveal=false;paintHomo();}};
+  $('homoReveal').onclick=()=>{homoReveal=true;paintHomo();};
+  $('homoReset').onclick=()=>{homoAdds=[3,5];homoReveal=false;paintHomo();};
+  document.querySelectorAll('[data-null]').forEach(b=>b.onclick=()=>nullVote(+b.dataset.null));
+  $('nullReset').onclick=()=>{nullStamp=[null,null];$('resA').textContent='';$('resB').textContent='';paintNull();};
+  $('lockSkip').onclick=()=>{lockN=0;lockRevealed=true;clearInterval(lockTimer);paintLock();};
+  $('lockReset').onclick=()=>lockStart();
+  $('verifyRun').onclick=()=>{if(!verifyRun)runVerify();};
+  $('verifyReset').onclick=()=>resetVerify();
+  $('ooTamper').onclick=()=>{ooForged=true;paintOO();};
+  $('ooReset').onclick=()=>{ooForged=false;paintOO();};
+}
+
+/* ---------- render 패치 ---------- */
+const _render=render;
+render=function(){_render();applyLevel();paintAll();
+  document.querySelectorAll('#merkle .leaf').forEach(()=>{});};
+
+/* ---------- 시작 ----------
+   (새 섹션의 .reveal 등장 애니메이션은 script1의 initReveal 옵저버가 이미 처리함) */
+buildChecks();paintMerkle();wire();render();lockStart();
+})();
 </script>
 </body>
 </html>
