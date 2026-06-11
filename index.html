@@ -369,13 +369,13 @@
   <header class="reveal">
     <div class="kicker" data-i18n="hdr.kicker"></div>
     <h1 data-i18n="hdr.h1"></h1>
-    <p data-i18n="hdr.p"></p>
+    <p data-lv="hdr.p"></p>
     <div class="tip" data-i18n="hdr.tip"></div>
     <div class="pillars">
-      <button class="pillar reveal" data-key="secret"><div class="pe">🤫</div><div class="pt" data-i18n="pillar.secret.t"></div><div class="pd" data-i18n="pillar.secret.d"></div><div class="more" data-i18n="pillar.more"></div></button>
-      <button class="pillar reveal" data-key="verify"><div class="pe">🔍</div><div class="pt" data-i18n="pillar.verify.t"></div><div class="pd" data-i18n="pillar.verify.d"></div><div class="more" data-i18n="pillar.more"></div></button>
-      <button class="pillar reveal" data-key="tamper"><div class="pe">🛡️</div><div class="pt" data-i18n="pillar.tamper.t"></div><div class="pd" data-i18n="pillar.tamper.d"></div><div class="more" data-i18n="pillar.more"></div></button>
-      <button class="pillar reveal" data-key="watch"><div class="pe">🌍</div><div class="pt" data-i18n="pillar.watch.t"></div><div class="pd" data-i18n="pillar.watch.d"></div><div class="more" data-i18n="pillar.more"></div></button>
+      <button class="pillar reveal" data-key="secret"><div class="pe">🤫</div><div class="pt" data-i18n="pillar.secret.t"></div><div class="pd" data-lv="pillar.secret.d"></div><div class="more" data-i18n="pillar.more"></div></button>
+      <button class="pillar reveal" data-key="verify"><div class="pe">🔍</div><div class="pt" data-i18n="pillar.verify.t"></div><div class="pd" data-lv="pillar.verify.d"></div><div class="more" data-i18n="pillar.more"></div></button>
+      <button class="pillar reveal" data-key="tamper"><div class="pe">🛡️</div><div class="pt" data-i18n="pillar.tamper.t"></div><div class="pd" data-lv="pillar.tamper.d"></div><div class="more" data-i18n="pillar.more"></div></button>
+      <button class="pillar reveal" data-key="watch"><div class="pe">🌍</div><div class="pt" data-i18n="pillar.watch.t"></div><div class="pd" data-lv="pillar.watch.d"></div><div class="more" data-i18n="pillar.more"></div></button>
     </div>
   </header>
 
@@ -1007,6 +1007,13 @@ Object.assign(DICT.ko,V3.ko);Object.assign(DICT.en,V3.en);
 
 /* ---------- 난이도별 설명(0초등/1중고/2일반) ---------- */
 const LV={ko:{
+ 'hdr.p':['누구를 뽑았는지는 아무도 몰라요. 그런데도 표가 정확히 세어졌는지는 모두가 확인할 수 있어요. 아래 카드를 눌러서 “왜 그런지” 이유를 하나씩 확인해 보세요!',
+  '내 표가 누구 것인지는 암호로 가려지지만, 표가 정확히 집계됐는지는 누구나 검증할 수 있어요. 영지식증명·동형암호·해시 사슬이 이 둘을 동시에 가능하게 해요. 카드를 눌러 원리를 확인해 보세요.',
+  '비밀성과 검증가능성은 보통 충돌하지만, 익명 멤버십·가산 준동형 암호·임계 개표(9-of-15)를 결합하면 “개별 표는 영원히 비공개, 집계는 공개 검증 가능”을 동시에 달성합니다. 각 요소를 카드에서 확인하세요.'],
+ 'pillar.secret.d':['누가 뽑았는지 아무도 몰라요','익명 번호표+암호화로 신원과 표를 분리','익명 멤버십·영지식증명으로 신원-투표 비연결'],
+ 'pillar.verify.d':['표를 언제든 다시 셀 수 있어요','공개 장부에 영구 기록돼 누구나 재계산','공개 검증성: 운영자 비밀 없이 독립 재검증'],
+ 'pillar.tamper.d':['한 표도 몰래 못 바꿔요','해시로 연결돼 하나만 바꿔도 다 어긋나요','단방향 해시 사슬+분산 합의로 위변조 불가'],
+ 'pillar.watch.d':['한 명이 거짓말 못 해요','장부를 다수가 복제·검사해 단독 조작 불가','신뢰 분산(9-of-15)으로 단일기관 개봉·변경 불가'],
  'v3.tamper.depth':['한 칸만 바꿔도 뒤에 연결된 도장이 줄줄이 안 맞아 금방 들켜요.','각 블록은 앞 블록 내용의 해시를 담아요. 내용이 바뀌면 해시가 완전히 달라져, 다음 블록이 가진 값과 어긋납니다.','해시는 단방향·충돌저항 함수라 같은 해시를 유지한 채 내용만 바꾸는 건 계산적으로 불가능. 게다가 분산 합의로 다수 노드의 사슬을 동시에 위조해야 해 현실적으로 불가합니다.'],
  'v3.thr.depth':['너무 적으면 몇 곳이 짜고 조작할 위험, 너무 많이 필요하면 일부만 빠져도 개표가 멈춰요. 9는 그 사이 균형점이에요.','비밀을 15조각으로 나누되 어떤 9조각으로도 복원되게 만드는 t-of-n 비밀분산을 써요. 8조각으론 정보가 전혀 안 나와요.','샤미르 비밀분산: t차 다항식 위의 점 n개를 나눠주면 t+1개 점으로만 상수항(비밀)을 복원. 9-of-15는 담합 저항(≤8 무력)과 가용성(≤6 분실 허용)의 균형점입니다.'],
  'v3.homo.depth':['🔒3 + 🔒5 = 🔒8 처럼, 잠긴 상자끼리 더해도 잠긴 합이 나와요. 그 합만 열면 돼요.','덧셈을 보존하는 암호(가산 준동형)예요. 암호문끼리 연산하면 평문을 더한 것과 같은 암호문이 나와요.','지수형 ElGamal·Paillier 같은 가산 준동형 암호: E(a)·E(b)=E(a+b) 성질로 봉인표를 합쳐 집계하고, 마지막에 임계 복호화로 합계만 공개합니다.'],
@@ -1017,6 +1024,13 @@ const LV={ko:{
  'v3.verify.depth':['결과가 맞는지 누구나 스스로 확인할 수 있어요. 누군가를 믿을 필요가 없어요.','검증에 필요한 코드와 회로가 전부 공개돼, 전문가·언론·시민 누구나 같은 검사를 재현할 수 있어요.','공개 검증성: 모든 영지식증명·동형합산·임계복호화 증명을 외부 도구가 독립 재검증하며, 검증에 어떤 비밀도 필요 없습니다.'],
  'v3.oo.depth':['무거운 원본은 따로 두고 작은 "지문"만 공개해요. 원본을 몰래 바꾸면 지문이 안 맞아 바로 들켜요.','원본의 해시(지문)만 체인에 올려요. 데이터 가용성은 별도 계층이 맡고, 무결성은 온체인 해시가 보장해요.','온체인은 명부 루트·무효화자 집합·집계 앵커 등 "무결성 앵커"만 저장. 오프체인 가용성 계층이 원본을 복제·공증하고 온체인 해시와 대조해 위변조를 탐지합니다.']
 },en:{
+ 'hdr.p':['Nobody can tell who you voted for. And yet everyone can confirm that the votes were counted correctly. Click the cards below to discover “why” it works, one reason at a time!',
+  'Your vote is hidden by cryptography, yet anyone can verify the tally is correct. Zero-knowledge proofs, homomorphic encryption and a hash chain make both possible at once. Tap the cards to see how.',
+  'Secrecy and verifiability usually conflict, but combining anonymous membership, additively-homomorphic encryption and threshold decryption (9-of-15) achieves both: individual votes stay private forever while the tally is publicly verifiable. Explore each piece in the cards.'],
+ 'pillar.secret.d':['Nobody knows who you picked','Anonymous tag + encryption split identity from vote','Anonymous membership + ZK keep identity unlinkable'],
+ 'pillar.verify.d':['Votes can be recounted anytime','Permanent public record — anyone recomputes','Public verifiability — re-checked without secrets'],
+ 'pillar.tamper.d':['Not even one vote can be altered','Hash-linked — one change breaks them all','One-way hash chain + consensus block forgery'],
+ 'pillar.watch.d':['No single person can lie','Many replicate/check — no solo tampering','Distributed trust (9-of-15) blocks any single party'],
  'v3.tamper.depth':['Change one box and the stamps behind it stop matching in a row — caught instantly.','Each block holds a hash of the previous block. Change the content and the hash changes completely, clashing with the next block’s stored value.','Hashes are one-way and collision-resistant, so altering content while keeping the same hash is computationally infeasible — plus distributed consensus means you’d have to forge the chain on many nodes at once.'],
  'v3.thr.depth':['Too few and a clique could collude; too many and the count stalls if some drop out. 9 is the balance.','It uses t-of-n secret sharing: the secret splits into 15 pieces but any 9 reconstruct it — 8 pieces leak nothing.','Shamir secret sharing: share n points on a degree-t polynomial; only t+1 points recover the constant (secret). 9-of-15 balances collusion-resistance (≤8 powerless) and availability (≤6 loss tolerated).'],
  'v3.homo.depth':['Like 🔒3 + 🔒5 = 🔒8 — adding locked boxes yields a locked sum. Only that sum is opened.','It’s additively-homomorphic encryption that preserves addition: operating on ciphertexts equals adding the plaintexts.','Additively-homomorphic schemes like exponential ElGamal/Paillier: E(a)·E(b)=E(a+b), so sealed votes combine into the tally and only the total is opened via threshold decryption.'],
