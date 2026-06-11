@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🗳️ 블록체인 비밀투표 대시보드</title>
+
+<!-- OG / SNS 공유 (미들웨어가 언어별로 교체) -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="🗳️ 블록체인 비밀투표 — 비밀은 지키고, 검증은 누구나">
+<meta property="og:description" content="누가 뽑았는지는 비밀, 표 검증은 누구나! 초등학생도 이해하는 블록체인 투표 대시보드.">
+<meta property="og:image" content="/og-ko.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="ko_KR">
+<meta property="og:url" content="">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="🗳️ 블록체인 비밀투표 — 비밀은 지키고, 검증은 누구나">
+<meta name="twitter:description" content="누가 뽑았는지는 비밀, 표 검증은 누구나! 초등학생도 이해하는 블록체인 투표 대시보드.">
+<meta name="twitter:image" content="/og-ko.png">
+
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+  :root{
+    --bg:#ffc98a;          /* 밝은 오렌지 바탕 */
+    --ink:#3a2415;         /* 따뜻한 진갈색 잉크 */
+    --ink2:#8a6f57;        /* 보조 글자 */
+    --line:#ffb568;        /* 진한 오렌지 경계선 */
+    --card:#ffe2ad;        /* 오렌지 카드 (흰색 완전 배제) */
+    --secret:#ff4d8d;
+    --verify:#10b8a6;
+    --tamper:#3f78ff;
+    --watch:#ff8a1e;
+    --good:#22c55e;
+    --bad:#ff5a5a;
+    --shadow:0 8px 24px rgba(255,150,60,.16);
+    --shadow-h:0 18px 44px rgba(255,120,40,.28);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:'Pretendard',sans-serif;
+    background:
+      radial-gradient(900px 480px at 6% -8%,#ffbf66 0%,transparent 60%),
+      radial-gradient(820px 460px at 106% 2%,#ffae8a 0%,transparent 58%),
+      radial-gradient(760px 520px at 50% 122%,#ffca7a 0%,transparent 62%),
+      var(--bg);
+    background-attachment:fixed;
+    color:var(--ink);line-height:1.7;-webkit-font-smoothing:antialiased;
+    letter-spacing:-.01em;padding:28px 20px 70px;
+  }
+  .wrap{max-width:1180px;margin:0 auto}
+
+  /* ===== 언어 토글 (고정) ===== */
+  .langtoggle{position:fixed;top:18px;right:18px;z-index:40;display:flex;
+    background:var(--card);border:2px solid var(--watch);border-radius:999px;
+    padding:4px;box-shadow:var(--shadow);font-weight:800;font-size:13.5px}
+  .langtoggle button{border:none;background:none;cursor:pointer;padding:7px 15px;
+    border-radius:999px;color:var(--ink2);font-weight:800;transition:.18s;font-family:inherit}
+  .langtoggle button.act{background:var(--watch);color:#fff;box-shadow:0 4px 12px rgba(255,138,30,.4)}
+  .langtoggle button:not(.act):hover{color:var(--watch)}
+
+  /* ===== 등장 애니메이션 ===== */
+  .reveal{opacity:0;transform:translateY(26px);transition:opacity .65s,transform .65s cubic-bezier(.2,.85,.25,1)}
+  .reveal.in{opacity:1;transform:none}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+  @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+  @keyframes pop{0%{transform:scale(.6);opacity:0}60%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
+  @keyframes rowIn{0%{transform:translateX(40px) scale(.96);opacity:0;background:#ffd98c}100%{transform:none;opacity:1}}
+
+  /* ===== HEADER ===== */
+  header{background:linear-gradient(135deg,#ffe7bd 0%,#ffd7c0 52%,#ffe3ad 100%);
+    border:1px solid #ffc684;border-radius:28px;padding:40px 42px;box-shadow:var(--shadow);
+    position:relative;overflow:hidden}
+  header::after{content:"⛓️";position:absolute;right:34px;top:46px;font-size:84px;opacity:.18;
+    animation:float 4s ease-in-out infinite}
+  .kicker{font-size:14px;font-weight:800;color:var(--watch);letter-spacing:.04em}
+  header h1{font-size:38px;font-weight:800;margin-top:10px;letter-spacing:-.03em;line-height:1.28}
+  header h1 .hl{background:linear-gradient(transparent 56%,#ffd060 56%,#ffb43a 100%);padding:0 4px;border-radius:3px}
+  header p{font-size:17px;color:var(--ink2);margin-top:14px;max-width:720px;font-weight:500}
+  .tip{margin-top:18px;font-size:14px;color:#9a6a1f;font-weight:700;display:inline-flex;gap:8px;
+    align-items:center;background:#ffdb9c;border:1px solid #ffbe6a;padding:9px 15px;border-radius:13px;
+    animation:pulse 3s ease-in-out infinite}
+
+  .pillars{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:24px}
+  @media(max-width:820px){.pillars{grid-template-columns:repeat(2,1fr)}}
+  .pillar{cursor:pointer;border:2px solid var(--line);border-radius:18px;padding:18px;
+    background:var(--card);transition:.18s;text-align:left;position:relative}
+  .pillar:hover{transform:translateY(-6px) scale(1.02);box-shadow:var(--shadow-h)}
+  .pillar:active{transform:translateY(-1px) scale(.99)}
+  .pillar .pe{font-size:30px;display:inline-block;transition:.3s}
+  .pillar:hover .pe{transform:scale(1.25) rotate(-8deg)}
+  .pillar .pt{font-weight:800;font-size:17px;margin-top:8px}
+  .pillar .pd{font-size:13px;color:var(--ink2);margin-top:3px;font-weight:500}
+  .pillar .more{font-size:12.5px;font-weight:800;margin-top:10px;display:inline-block}
+  .pillar[data-key=secret]{border-color:#ffc9dd}.pillar[data-key=secret] .pt,.pillar[data-key=secret] .more{color:var(--secret)}
+  .pillar[data-key=verify]{border-color:#bdeae3}.pillar[data-key=verify] .pt,.pillar[data-key=verify] .more{color:var(--verify)}
+  .pillar[data-key=tamper]{border-color:#c6d8ff}.pillar[data-key=tamper] .pt,.pillar[data-key=tamper] .more{color:var(--tamper)}
+  .pillar[data-key=watch]{border-color:#ffdca6}.pillar[data-key=watch] .pt,.pillar[data-key=watch] .more{color:var(--watch)}
+
+  /* ===== SECTION ===== */
+  section{margin-top:30px}
+  .h{display:flex;align-items:baseline;gap:12px;margin-bottom:16px;padding-left:4px;flex-wrap:wrap}
+  .h h2{font-size:23px;font-weight:800;letter-spacing:-.02em}
+  .h span{font-size:14px;color:var(--ink2);font-weight:500}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:24px;box-shadow:var(--shadow)}
+  .grid{display:grid;gap:16px}
+  .g4{grid-template-columns:repeat(4,1fr)}.g2{grid-template-columns:1.25fr 1fr}
+  @media(max-width:900px){.g4{grid-template-columns:repeat(2,1fr)}.g2{grid-template-columns:1fr}}
+
+  .stat{cursor:pointer;transition:.18s}
+  .stat:hover{transform:translateY(-5px);box-shadow:var(--shadow-h)}
+  .stat .ic{font-size:24px}
+  .stat .num{font-size:34px;font-weight:800;margin-top:4px;letter-spacing:-.02em}
+  .stat .lbl{color:var(--ink2);font-size:14px;font-weight:600;margin-top:2px}
+  .stat .hint{font-size:12px;font-weight:700;color:var(--watch);margin-top:10px}
+
+  .flow{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+  @media(max-width:900px){.flow{grid-template-columns:repeat(2,1fr)}}
+  .step{cursor:pointer;background:var(--card);border:1px solid var(--line);border-radius:16px;
+    padding:18px 14px;text-align:center;transition:.18s}
+  .step:hover{transform:translateY(-6px) rotate(-1deg);box-shadow:var(--shadow-h);border-color:#ffce93}
+  .step .n{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;margin:0 auto 8px;
+    font-weight:800;font-size:13px;color:#fff;background:var(--watch)}
+  .step .e{font-size:30px;transition:.3s}.step:hover .e{transform:scale(1.2)}
+  .step .t{font-weight:800;margin-top:6px;font-size:15.5px}
+  .step .d{color:var(--ink2);font-size:12.5px;margin-top:3px;font-weight:500}
+  .step .tap{font-size:11.5px;color:var(--ink2);font-weight:700;margin-top:8px;opacity:.7}
+
+  /* ===== 투표 시뮬레이터 ===== */
+  .sim{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  @media(max-width:780px){.sim{grid-template-columns:1fr}}
+  .votebox{display:flex;flex-direction:column;gap:12px}
+  .candidate{display:flex;align-items:center;gap:14px;border:2px solid var(--line);border-radius:16px;
+    padding:14px 16px;cursor:pointer;background:var(--card);transition:.16s;font-family:inherit;text-align:left;width:100%}
+  .candidate:hover{transform:translateX(5px);box-shadow:var(--shadow)}
+  .candidate:active{transform:scale(.98)}
+  .candidate .ce{font-size:30px}
+  .candidate .cn{font-weight:800;font-size:16px}
+  .candidate .cc{font-size:12.5px;color:var(--ink2);font-weight:600}
+  .candidate .cv{margin-left:auto;font-weight:800;font-size:20px}
+  .simctrl{display:flex;gap:10px;margin-top:4px}
+  .btn{border:none;cursor:pointer;font-family:inherit;font-weight:800;border-radius:12px;padding:11px 16px;font-size:14px;transition:.16s}
+  .btn-reset{background:#ffd595;color:#8a5a12;border:1px solid #ffba66}
+  .btn-reset:hover{background:#ffc97f}
+  .simnote{font-size:13px;color:var(--ink2);font-weight:500;margin-top:6px;line-height:1.6}
+  .procpanel{display:flex;flex-direction:column;gap:14px}
+  .proctitle{font-weight:800;font-size:15px}
+  .proc{list-style:none;position:relative}
+  .proc::before{content:"";position:absolute;left:17px;top:14px;bottom:14px;width:3px;background:var(--line);border-radius:3px}
+  .pstep{display:flex;align-items:center;gap:12px;padding:6px 0;position:relative;opacity:.45;transition:.3s}
+  .pstep.active,.pstep.done{opacity:1}
+  .ps-dot{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-size:18px;
+    background:var(--bg);border:2px solid var(--line);flex-shrink:0;z-index:1;transition:.3s}
+  .pstep.active .ps-dot{transform:scale(1.18);border-color:var(--watch);box-shadow:0 0 0 6px rgba(255,138,30,.18)}
+  .pstep.done .ps-dot{background:var(--watch);border-color:var(--watch)}
+  .ps-t{font-weight:800;font-size:14px}
+  .ps-v{font-size:12.5px;color:var(--ink2);font-weight:600;min-height:15px;transition:.2s}
+  .ps-check{margin-left:auto;color:var(--good);font-weight:900;font-size:17px;opacity:0;transform:scale(.4);transition:.3s}
+  .pstep.done .ps-check{opacity:1;transform:scale(1)}
+  .ballotchip{margin-top:4px;background:#ffe6c2;border:1px dashed #ffbf6e;border-radius:14px;padding:14px;text-align:center}
+  .ballotchip .bl{font-size:12.5px;color:var(--ink2);font-weight:700}
+  .ballotchip .bn{font-family:'Consolas',monospace;font-size:24px;font-weight:800;color:var(--secret);margin-top:4px;letter-spacing:1px}
+  .ballotchip .bs{font-size:12px;color:var(--ink2);margin-top:6px;font-weight:600}
+
+  /* ===== TABLE ===== */
+  table{width:100%;border-collapse:collapse;font-size:14.5px}
+  th,td{padding:12px 14px;text-align:left;border-bottom:1px solid var(--line)}
+  th{color:var(--ink2);font-size:12.5px;font-weight:700}
+  tr:last-child td{border-bottom:none}
+  tbody tr{cursor:pointer;transition:.12s}tbody tr:hover{background:#ffe2b8}
+  tbody tr.new{animation:rowIn .55s cubic-bezier(.2,.85,.25,1)}
+  .mono{font-family:'Consolas',monospace;color:var(--tamper);font-weight:600}
+  .pill{padding:4px 11px;border-radius:999px;font-size:12.5px;font-weight:800;display:inline-block}
+  .pl-lock{background:#ffd9a0;color:#b25e0a}.pl-ok{background:#ffd9a0;color:#1f7a44}.pl-secret{background:#ffd9a0;color:#c43370}
+
+  .concept{cursor:pointer;display:flex;gap:14px;align-items:flex-start;padding:15px;border-radius:14px;
+    border:1px solid var(--line);background:var(--card);margin-bottom:12px;transition:.16s}
+  .concept:hover{background:#ffe2b8;transform:translateX(5px);border-color:#ffbf78}
+  .concept .em{font-size:28px;flex-shrink:0}.concept b{font-size:15.5px}
+  .concept p{color:var(--ink2);font-size:13.5px;margin-top:2px;font-weight:500}
+  .concept .go{margin-left:auto;align-self:center;font-size:20px;color:var(--ink2)}
+
+  .comp{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:640px){.comp{grid-template-columns:1fr}}
+  .box{border-radius:16px;padding:18px;border:1px solid var(--line)}
+  .box.bad{background:#ffd6bf;border-color:#ff9b80}.box.good{background:#ffe6b0;border-color:#ffbf66}
+  .box h3{font-size:16px;margin-bottom:10px}.box ul{list-style:none}
+  .box li{padding:5px 0;font-size:14px;display:flex;gap:8px;font-weight:500}
+  .legend{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+  footer{text-align:center;color:var(--ink2);font-size:13px;margin-top:40px;font-weight:500}
+
+  /* ===== MODAL ===== */
+  .overlay{position:fixed;inset:0;background:rgba(60,35,15,.5);backdrop-filter:blur(3px);
+    display:none;align-items:center;justify-content:center;padding:20px;z-index:60;opacity:0;transition:.2s}
+  .overlay.on{display:flex;opacity:1}
+  .modal{background:var(--card);border-radius:24px;max-width:560px;width:100%;max-height:88vh;overflow-y:auto;
+    box-shadow:0 30px 80px rgba(60,35,15,.4);transform:translateY(16px) scale(.97);transition:.22s}
+  .overlay.on .modal{transform:none}
+  .modal .top{padding:26px 28px 18px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--card);border-radius:24px 24px 0 0}
+  .modal .tag{font-size:13px;font-weight:800}
+  .modal h3{font-size:25px;font-weight:800;margin-top:6px;letter-spacing:-.02em;line-height:1.3}
+  .modal .lead{font-size:15px;color:var(--ink2);margin-top:8px;font-weight:500}
+  .modal .body{padding:8px 28px 26px}
+  .reason{display:flex;gap:14px;padding:16px 0;border-bottom:1px dashed var(--line)}
+  .reason:last-child{border-bottom:none}
+  .reason .rn{flex-shrink:0;width:30px;height:30px;border-radius:9px;display:grid;place-items:center;font-weight:800;color:#fff;font-size:15px}
+  .reason .rt{font-weight:800;font-size:16px}
+  .reason .rp{font-size:14.5px;color:var(--ink2);margin-top:3px;font-weight:500}
+  .reason .ex{font-size:13.5px;margin-top:8px;background:#ffe1ab;border:1px solid #ffc679;padding:9px 12px;border-radius:11px;color:#7a5d1a;font-weight:600}
+  .closebtn{position:absolute;top:22px;right:24px;width:34px;height:34px;border:none;cursor:pointer;
+    background:#ffd595;border-radius:10px;font-size:18px;color:var(--ink);font-weight:700;transition:.15s}
+  .closebtn:hover{background:#ffc77d;transform:rotate(90deg)}
+  .kbd{font-size:12px;color:var(--ink2);text-align:center;padding:0 28px 22px;font-weight:600}
+
+  /* ===== TOAST & CONFETTI ===== */
+  .toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(24px);opacity:0;
+    background:var(--ink);color:#fff;padding:13px 22px;border-radius:14px;font-weight:700;font-size:14.5px;
+    z-index:70;transition:.3s cubic-bezier(.2,.85,.25,1);box-shadow:0 12px 30px rgba(0,0,0,.3);pointer-events:none}
+  .toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+  .confetti{position:fixed;font-size:18px;pointer-events:none;z-index:65;animation:burst .9s ease-out forwards}
+  @keyframes burst{to{transform:translate(var(--tx),var(--ty)) rotate(var(--r));opacity:0}}
+</style>
+</head>
+<body>
+
+<div class="langtoggle">
+  <button id="btn-ko" onclick="setLang('ko')">한국어</button>
+  <button id="btn-en" onclick="setLang('en')">EN</button>
+</div>
+
+<div class="wrap">
+  <!-- HEADER -->
+  <header class="reveal">
+    <div class="kicker" data-i18n="hdr.kicker"></div>
+    <h1 data-i18n="hdr.h1"></h1>
+    <p data-i18n="hdr.p"></p>
+    <div class="tip" data-i18n="hdr.tip"></div>
+    <div class="pillars">
+      <button class="pillar reveal" data-key="secret"><div class="pe">🤫</div><div class="pt" data-i18n="pillar.secret.t"></div><div class="pd" data-i18n="pillar.secret.d"></div><div class="more" data-i18n="pillar.more"></div></button>
+      <button class="pillar reveal" data-key="verify"><div class="pe">🔍</div><div class="pt" data-i18n="pillar.verify.t"></div><div class="pd" data-i18n="pillar.verify.d"></div><div class="more" data-i18n="pillar.more"></div></button>
+      <button class="pillar reveal" data-key="tamper"><div class="pe">🛡️</div><div class="pt" data-i18n="pillar.tamper.t"></div><div class="pd" data-i18n="pillar.tamper.d"></div><div class="more" data-i18n="pillar.more"></div></button>
+      <button class="pillar reveal" data-key="watch"><div class="pe">🌍</div><div class="pt" data-i18n="pillar.watch.t"></div><div class="pd" data-i18n="pillar.watch.d"></div><div class="more" data-i18n="pillar.more"></div></button>
+    </div>
+  </header>
+
+  <!-- STATS -->
+  <section>
+    <div class="h reveal"><h2 data-i18n="sec.stat.h"></h2><span data-i18n="sec.stat.s"></span></div>
+    <div class="grid g4">
+      <div class="card stat reveal" data-key="stat-total"><div class="ic">🎫</div><div class="num" id="s-total">320</div><div class="lbl" data-i18n="stat.total"></div><div class="hint" data-i18n="stat.tap"></div></div>
+      <div class="card stat reveal" data-key="stat-cast"><div class="ic">📥</div><div class="num" id="s-cast">0</div><div class="lbl" data-i18n="stat.cast"></div><div class="hint" data-i18n="stat.tap"></div></div>
+      <div class="card stat reveal" data-key="stat-block"><div class="ic">🧱</div><div class="num" id="s-block">0</div><div class="lbl" data-i18n="stat.block"></div><div class="hint" data-i18n="stat.tap"></div></div>
+      <div class="card stat reveal" data-key="stat-verify"><div class="ic">✅</div><div class="num">100%</div><div class="lbl" data-i18n="stat.verify"></div><div class="hint" data-i18n="stat.tap"></div></div>
+    </div>
+  </section>
+
+  <!-- FLOW -->
+  <section>
+    <div class="h reveal"><h2 data-i18n="sec.flow.h"></h2><span data-i18n="sec.flow.s"></span></div>
+    <div class="flow">
+      <div class="step reveal" data-key="step1"><div class="n">1</div><div class="e">🙋</div><div class="t" data-i18n="step1.t"></div><div class="d" data-i18n="step1.d"></div><div class="tap" data-i18n="flow.tap"></div></div>
+      <div class="step reveal" data-key="step2"><div class="n">2</div><div class="e">🎫</div><div class="t" data-i18n="step2.t"></div><div class="d" data-i18n="step2.d"></div><div class="tap" data-i18n="flow.tap"></div></div>
+      <div class="step reveal" data-key="step3"><div class="n">3</div><div class="e">🔒</div><div class="t" data-i18n="step3.t"></div><div class="d" data-i18n="step3.d"></div><div class="tap" data-i18n="flow.tap"></div></div>
+      <div class="step reveal" data-key="step4"><div class="n">4</div><div class="e">🧮</div><div class="t" data-i18n="step4.t"></div><div class="d" data-i18n="step4.d"></div><div class="tap" data-i18n="flow.tap"></div></div>
+      <div class="step reveal" data-key="step5"><div class="n">5</div><div class="e">🔍</div><div class="t" data-i18n="step5.t"></div><div class="d" data-i18n="step5.d"></div><div class="tap" data-i18n="flow.tap"></div></div>
+    </div>
+  </section>
+
+  <!-- SIMULATOR -->
+  <section>
+    <div class="h reveal"><h2 data-i18n="sec.sim.h"></h2><span data-i18n="sec.sim.s"></span></div>
+    <div class="card reveal">
+      <div class="sim">
+        <div class="votebox">
+          <button class="candidate" data-cand="0"><span class="ce">🍎</span><span><span class="cn" data-i18n="cand.0"></span><br><span class="cc" data-i18n="cand.0.d"></span></span><span class="cv" id="cv0">0</span></button>
+          <button class="candidate" data-cand="1"><span class="ce">🍊</span><span><span class="cn" data-i18n="cand.1"></span><br><span class="cc" data-i18n="cand.1.d"></span></span><span class="cv" id="cv1">0</span></button>
+          <button class="candidate" data-cand="2"><span class="ce">🍇</span><span><span class="cn" data-i18n="cand.2"></span><br><span class="cc" data-i18n="cand.2.d"></span></span><span class="cv" id="cv2">0</span></button>
+          <div class="simctrl"><button class="btn btn-reset" id="resetBtn" data-i18n="sim.reset"></button></div>
+          <div class="simnote" data-i18n="sim.note"></div>
+        </div>
+        <div class="procpanel">
+          <div class="proctitle" data-i18n="proc.title"></div>
+          <ol class="proc" id="proc">
+            <li class="pstep"><div class="ps-dot">🙋</div><div class="ps-body"><div class="ps-t" data-i18n="proc.s0"></div><div class="ps-v"></div></div><div class="ps-check">✓</div></li>
+            <li class="pstep"><div class="ps-dot">🎫</div><div class="ps-body"><div class="ps-t" data-i18n="proc.s1"></div><div class="ps-v"></div></div><div class="ps-check">✓</div></li>
+            <li class="pstep"><div class="ps-dot">🔒</div><div class="ps-body"><div class="ps-t" data-i18n="proc.s2"></div><div class="ps-v"></div></div><div class="ps-check">✓</div></li>
+            <li class="pstep"><div class="ps-dot">🧱</div><div class="ps-body"><div class="ps-t" data-i18n="proc.s3"></div><div class="ps-v"></div></div><div class="ps-check">✓</div></li>
+            <li class="pstep"><div class="ps-dot">✅</div><div class="ps-body"><div class="ps-t" data-i18n="proc.s4"></div><div class="ps-v"></div></div><div class="ps-check">✓</div></li>
+          </ol>
+          <div class="ballotchip">
+            <div class="bl" data-i18n="sim.ballot.label"></div>
+            <div class="bn" id="ballotNum">#----</div>
+            <div class="bs" id="ballotState" data-i18n="sim.ballot.idle"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CHARTS -->
+  <section>
+    <div class="grid g2">
+      <div class="card reveal"><div class="h" style="margin-bottom:8px"><h2 style="font-size:20px" data-i18n="chart.bar.h"></h2></div>
+        <p style="color:var(--ink2);font-size:13.5px;margin-bottom:14px;font-weight:500" data-i18n="chart.bar.d"></p>
+        <canvas id="barChart" height="180"></canvas></div>
+      <div class="card reveal"><div class="h" style="margin-bottom:8px"><h2 style="font-size:20px" data-i18n="chart.pie.h"></h2></div>
+        <p style="color:var(--ink2);font-size:13.5px;margin-bottom:14px;font-weight:500" data-i18n="chart.pie.d"></p>
+        <canvas id="pieChart" height="180"></canvas></div>
+    </div>
+  </section>
+
+  <!-- LEDGER -->
+  <section>
+    <div class="h reveal"><h2 data-i18n="sec.ledger.h"></h2><span data-i18n="sec.ledger.s"></span></div>
+    <div class="card reveal">
+      <table>
+        <thead><tr><th data-i18n="th.block"></th><th data-i18n="th.ballot"></th><th data-i18n="th.content"></th><th data-i18n="th.hash"></th><th data-i18n="th.status"></th></tr></thead>
+        <tbody id="ledgerBody"></tbody>
+      </table>
+      <div class="legend">
+        <span class="pill pl-secret" data-i18n="ledger.legend.secret"></span>
+        <span class="pill pl-ok" data-i18n="ledger.legend.verify"></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONCEPTS + COMPARE -->
+  <section>
+    <div class="grid g2">
+      <div class="card reveal"><div class="h" style="margin-bottom:8px"><h2 style="font-size:20px" data-i18n="sec.magic.h"></h2></div>
+        <p style="color:var(--ink2);font-size:13.5px;margin-bottom:14px;font-weight:500" data-i18n="sec.magic.s"></p>
+        <div class="concept" data-key="enc"><div class="em">🔒</div><div><b data-i18n="magic.enc.t"></b><p data-i18n="magic.enc.d"></p></div><div class="go">›</div></div>
+        <div class="concept" data-key="zkp"><div class="em">🎁</div><div><b data-i18n="magic.zkp.t"></b><p data-i18n="magic.zkp.d"></p></div><div class="go">›</div></div>
+        <div class="concept" data-key="anon"><div class="em">🏷️</div><div><b data-i18n="magic.anon.t"></b><p data-i18n="magic.anon.d"></p></div><div class="go">›</div></div>
+      </div>
+      <div class="card reveal"><div class="h" style="margin-bottom:8px"><h2 style="font-size:20px" data-i18n="sec.comp.h"></h2></div>
+        <p style="color:var(--ink2);font-size:13.5px;margin-bottom:14px;font-weight:500" data-i18n="sec.comp.s"></p>
+        <div class="comp">
+          <div class="box bad"><h3 data-i18n="comp.old.h"></h3><ul>
+            <li data-i18n="comp.old.1"></li><li data-i18n="comp.old.2"></li><li data-i18n="comp.old.3"></li><li data-i18n="comp.old.4"></li></ul></div>
+          <div class="box good"><h3 data-i18n="comp.new.h"></h3><ul>
+            <li data-i18n="comp.new.1"></li><li data-i18n="comp.new.2"></li><li data-i18n="comp.new.3"></li><li data-i18n="comp.new.4"></li></ul></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer data-i18n="footer"></footer>
+</div>
+
+<!-- MODAL -->
+<div class="overlay" id="overlay"><div class="modal">
+  <div class="top"><button class="closebtn" id="closeBtn">✕</button>
+    <div class="tag" id="mTag"></div><h3 id="mTitle"></h3><div class="lead" id="mLead"></div></div>
+  <div class="body" id="mBody"></div>
+  <div class="kbd" data-i18n="modal.kbd"></div>
+</div></div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ===================== 다국어 사전 ===================== */
+const DICT={
+ko:{
+ 'hdr.kicker':'⛓️ BLOCKCHAIN VOTING · 초등학생용 설명 대시보드',
+ 'hdr.h1':'비밀은 <span class="hl">완벽히 지키고</span>,<br>표는 <span class="hl">누구나 다시 확인</span>하는 투표',
+ 'hdr.p':'누구를 뽑았는지는 아무도 몰라요. 그런데도 표가 정확히 세어졌는지는 모두가 확인할 수 있어요. 아래 카드를 눌러서 “왜 그런지” 이유를 하나씩 확인해 보세요!',
+ 'hdr.tip':'👆 거의 모든 칸을 클릭하면 “왜 그런지” 자세한 설명이 열려요.',
+ 'pillar.more':'왜 가능할까? →',
+ 'pillar.secret.t':'비밀 보장','pillar.secret.d':'누가 뽑았는지 아무도 몰라요',
+ 'pillar.verify.t':'재검증 가능','pillar.verify.d':'표를 언제든 다시 셀 수 있어요',
+ 'pillar.tamper.t':'위변조 불가','pillar.tamper.d':'한 표도 몰래 못 바꿔요',
+ 'pillar.watch.t':'모두가 감시','pillar.watch.d':'한 명이 거짓말 못 해요',
+ 'sec.stat.h':'📈 한눈에 보는 현황','sec.stat.s':'카드를 누르면 자세한 뜻을 알려줘요',
+ 'stat.total':'발급된 비밀 번호표','stat.cast':'실제 투표한 표','stat.block':'블록체인에 쌓인 블록','stat.verify':'재검증 통과율','stat.tap':'눌러서 설명 보기 →',
+ 'sec.flow.h':'🚦 투표 한 장의 여행 (5단계)','sec.flow.s':'각 단계를 누르면 “왜 중요한지” 설명해요','flow.tap':'👆 자세히',
+ 'step1.t':'자격 확인','step1.d':'“너 맞아!” 출석부 체크',
+ 'step2.t':'번호표 받기','step2.d':'이름 떼고 비밀번호표로',
+ 'step3.t':'투표 & 잠금','step3.d':'표를 자물쇠로 암호화',
+ 'step4.t':'개표','step4.d':'누군지 모른 채 숫자만',
+ 'step5.t':'재검증','step5.d':'누구나 다시 확인 OK',
+ 'sec.sim.h':'🗳️ 직접 해보는 투표 시뮬레이터','sec.sim.s':'후보를 누르면 비밀 번호표가 만들어지고 블록이 실시간으로 쌓여요!',
+ 'cand.0':'🍎 사과당','cand.0.d':'기호 1번','cand.1':'🍊 귤당','cand.1.d':'기호 2번','cand.2':'🍇 포도당','cand.2.d':'기호 3번',
+ 'sim.reset':'↺ 처음으로','sim.note':'실제 투표처럼 0표에서 시작해요. 후보를 누를 때마다 오른쪽에서 전 과정이 단계별로 펼쳐지고, 결과는 오직 여러분의 클릭으로 정해져요 — 매번 달라져요!',
+ 'proc.title':'🔎 표 한 장이 처리되는 전 과정',
+ 'proc.s0':'자격 확인','proc.s1':'번호표 발급','proc.s2':'암호화 잠금','proc.s3':'블록 기록','proc.s4':'분산·검증',
+ 'proc.v0':'유권자 자격 확인됨 ✓',
+ 'proc.v1':'비밀 번호표 {tag} 발급 (이름과 분리)',
+ 'proc.v2':'{c} 선택 → 🔒 표를 암호화해 잠금',
+ 'proc.v3':'블록 #{n} 으로 장부에 영구 기록',
+ 'proc.v4':'모두의 공책에 복사 → ✅ 재검증 통과',
+ 'ledger.empty':'아직 표가 없어요 — 위 시뮬레이터에서 후보를 눌러 첫 표를 던져보세요! 🗳️',
+ 'sim.ballot.label':'방금 발급된 비밀 번호표','sim.ballot.idle':'후보를 누르면 번호표가 나와요','sim.ballot.done':'🔒 잠겨서 블록 #{n}에 기록됨',
+ 'sim.toast':'표가 블록 #{n}에 잠겨서 기록됐어요! 🔒','sim.toast.full':'모든 번호표(320장)가 투표를 마쳤어요! 🎉',
+ 'chart.bar.h':'📊 개표 결과','chart.bar.d':'표는 정확히 세었지만, 누가 뽑았는지는 끝까지 비밀이에요.',
+ 'chart.pie.h':'🥧 투표 참여율','chart.pie.d':'번호표를 받은 사람 중 실제로 투표한 비율이에요.',
+ 'chart.voted':'투표함','chart.notyet':'아직 안 함','chart.invalid':'🍋 무효',
+ 'sec.ledger.h':'⛓️ 블록체인 공책 (투표 장부)','sec.ledger.s':'한 줄(블록)을 누르면 비밀과 검증이 어떻게 동시에 되는지 설명해요',
+ 'th.block':'블록 #','th.ballot':'비밀 번호표','th.content':'표 내용','th.hash':'이전 블록 도장(해시)','th.status':'상태',
+ 'tbl.lock':'🔒 잠김','tbl.ok':'✓ 확정',
+ 'ledger.legend.secret':'🤫 누가 뽑았는지 = 비밀','ledger.legend.verify':'🔍 표 개수·연결 = 누구나 확인',
+ 'sec.magic.h':'✨ 비밀을 지키는 3가지 마법','sec.magic.s':'각 마법을 누르면 원리를 비유로 알려줘요.',
+ 'magic.enc.t':'암호화','magic.enc.d':'표를 자물쇠로 잠가서 숨겨요',
+ 'magic.zkp.t':'영지식증명','magic.zkp.d':'상자를 안 열고도 규칙을 증명해요',
+ 'magic.anon.t':'익명화','magic.anon.d':'이름표를 떼고 번호표를 붙여요',
+ 'sec.comp.h':'⚖️ 옛날 방식 vs 블록체인','sec.comp.s':'왜 블록체인이 더 안전할까요?',
+ 'comp.old.h':'😟 옛날 방식','comp.old.1':'📓 공책이 하나뿐','comp.old.2':'✏️ 몰래 고쳐도 모름','comp.old.3':'🙈 확인이 어려움','comp.old.4':'🧍 한 명만 관리',
+ 'comp.new.h':'😄 블록체인','comp.new.1':'📚 모두가 같은 공책','comp.new.2':'🚫 고치면 바로 들통','comp.new.3':'🔍 누구나 재검증','comp.new.4':'🌍 모두가 감시',
+ 'footer':'🗳️ 비밀은 지키고, 확인은 누구나 — 블록체인 투표 시스템 · 거의 모든 칸을 클릭해 “왜?”를 알아보세요',
+ 'modal.kbd':'ESC 키 또는 바깥을 누르면 닫혀요',
+ 'doc.title':'🗳️ 블록체인 비밀투표 대시보드'
+},
+en:{
+ 'hdr.kicker':'⛓️ BLOCKCHAIN VOTING · A kid-friendly dashboard',
+ 'hdr.h1':'Your choice stays <span class="hl">fully secret</span>,<br>yet <span class="hl">anyone can re-check</span> the count',
+ 'hdr.p':'Nobody can tell who you voted for. And yet everyone can confirm that the votes were counted correctly. Click the cards below to discover “why” it works, one reason at a time!',
+ 'hdr.tip':'👆 Click almost any box to open a detailed “why does this work?” explanation.',
+ 'pillar.more':'Why does it work? →',
+ 'pillar.secret.t':'Secrecy','pillar.secret.d':'Nobody knows who you picked',
+ 'pillar.verify.t':'Re-verifiable','pillar.verify.d':'Votes can be recounted anytime',
+ 'pillar.tamper.t':'Tamper-proof','pillar.tamper.d':'Not even one vote can be altered',
+ 'pillar.watch.t':'Everyone watches','pillar.watch.d':'No single person can lie',
+ 'sec.stat.h':'📈 At a glance','sec.stat.s':'Tap a card to see what it means',
+ 'stat.total':'Secret ballots issued','stat.cast':'Votes actually cast','stat.block':'Blocks on the chain','stat.verify':'Re-verification pass rate','stat.tap':'Tap for details →',
+ 'sec.flow.h':'🚦 The journey of one vote (5 steps)','sec.flow.s':'Tap each step to learn why it matters','flow.tap':'👆 details',
+ 'step1.t':'Check eligibility','step1.d':'“Yep, that’s you!” roll-call',
+ 'step2.t':'Get a ballot tag','step2.d':'Name off, secret tag on',
+ 'step3.t':'Vote & lock','step3.d':'Encrypt the vote shut',
+ 'step4.t':'Count','step4.d':'Only numbers, no names',
+ 'step5.t':'Re-verify','step5.d':'Anyone can re-check',
+ 'sec.sim.h':'🗳️ Try the voting simulator','sec.sim.s':'Tap a candidate — a secret ballot tag is created and a block is added live!',
+ 'cand.0':'🍎 Apple Party','cand.0.d':'Ballot No. 1','cand.1':'🍊 Orange Party','cand.1.d':'Ballot No. 2','cand.2':'🍇 Grape Party','cand.2.d':'Ballot No. 3',
+ 'sim.reset':'↺ Reset','sim.note':'It starts at 0 votes, like a real election. Each tap unfolds the full process on the right, and the result is decided only by your clicks — different every time!',
+ 'proc.title':'🔎 The full journey of this one vote',
+ 'proc.s0':'Eligibility','proc.s1':'Issue tag','proc.s2':'Encrypt & lock','proc.s3':'Add block','proc.s4':'Distribute & verify',
+ 'proc.v0':'Voter eligibility confirmed ✓',
+ 'proc.v1':'Secret tag {tag} issued (split from name)',
+ 'proc.v2':'{c} chosen → 🔒 vote encrypted & locked',
+ 'proc.v3':'Permanently recorded as block #{n}',
+ 'proc.v4':'Copied to everyone’s book → ✅ re-verified',
+ 'ledger.empty':'No votes yet — tap a candidate in the simulator above to cast the first one! 🗳️',
+ 'sim.ballot.label':'Your fresh secret ballot tag','sim.ballot.idle':'Tap a candidate to get a tag','sim.ballot.done':'🔒 locked into block #{n}',
+ 'sim.toast':'Your vote was locked into block #{n}! 🔒','sim.toast.full':'All 320 ballot tags have finished voting! 🎉',
+ 'chart.bar.h':'📊 Count results','chart.bar.d':'Votes are counted exactly — yet who voted for whom stays secret.',
+ 'chart.pie.h':'🥧 Turnout','chart.pie.d':'Share of ballot holders who actually voted.',
+ 'chart.voted':'Voted','chart.notyet':'Not yet','chart.invalid':'🍋 Invalid',
+ 'sec.ledger.h':'⛓️ The blockchain ledger','sec.ledger.s':'Tap a row (block) to see how secrecy and verification happen at once',
+ 'th.block':'Block #','th.ballot':'Secret tag','th.content':'Vote','th.hash':'Prev block stamp (hash)','th.status':'Status',
+ 'tbl.lock':'🔒 locked','tbl.ok':'✓ final',
+ 'ledger.legend.secret':'🤫 Who voted = secret','ledger.legend.verify':'🔍 Count & links = anyone can check',
+ 'sec.magic.h':'✨ 3 spells that keep it secret','sec.magic.s':'Tap each spell for a simple analogy.',
+ 'magic.enc.t':'Encryption','magic.enc.d':'Locks the vote shut to hide it',
+ 'magic.zkp.t':'Zero-knowledge proof','magic.zkp.d':'Proves the rules without opening the box',
+ 'magic.anon.t':'Anonymization','magic.anon.d':'Name tag off, number tag on',
+ 'sec.comp.h':'⚖️ Old way vs blockchain','sec.comp.s':'Why is blockchain safer?',
+ 'comp.old.h':'😟 The old way','comp.old.1':'📓 Only one notebook','comp.old.2':'✏️ Secret edits go unnoticed','comp.old.3':'🙈 Hard to verify','comp.old.4':'🧍 One person in charge',
+ 'comp.new.h':'😄 Blockchain','comp.new.1':'📚 Everyone holds the same book','comp.new.2':'🚫 Edits are caught instantly','comp.new.3':'🔍 Anyone can re-verify','comp.new.4':'🌍 Everyone watches',
+ 'footer':'🗳️ Private yet verifiable — a blockchain voting system · Click almost any box to learn “why?”',
+ 'modal.kbd':'Press ESC or click outside to close',
+ 'doc.title':'🗳️ Blockchain Secret Voting Dashboard'
+}};
+
+/* ===================== 모달 상세 설명 ===================== */
+const COLOR={secret:'#ff4d8d',verify:'#10b8a6',tamper:'#3f78ff',watch:'#ff8a1e',ink:'#3a2415'};
+const MODAL={
+ko:{
+ secret:{c:'secret',tag:'🤫 핵심 원리',title:'왜 비밀이 완벽히 지켜질까?',lead:'표는 모두가 보는 공책에 적히는데, 어떻게 “누가 뽑았는지”는 숨길까요? 3중 장치가 있어요.',reasons:[
+  {t:'이름과 표를 끊어버려요 (익명화)',p:'자격만 확인하고 이름 대신 ‘비밀 번호표’를 줘요. 이름과 번호표의 연결을 그 순간 끊어서, 번호표만 봐선 누구 것인지 알 수 없어요.',ex:'공책엔 “철수가 1번”이 아니라 “#7X9K가 1번”이라고만 적혀요.'},
+  {t:'표를 자물쇠로 잠가요 (암호화)',p:'투표 내용을 비밀 자물쇠로 잠근 채 공책에 올려요. 공책을 봐도 안에 무엇을 골랐는지 보이지 않아요.',ex:'비밀 일기장에 자물쇠를 채우는 것과 같아요. 🔒'},
+  {t:'안 열어보고도 규칙을 증명해요 (영지식증명)',p:'“후보 한 명에게 딱 한 표만 넣었다”를 표 내용을 안 보여주고도 수학으로 증명해요. 부정은 막고 비밀은 지켜요.',ex:'가방을 안 열고도 “숙제 있어요”를 증명하는 마법 🎁'}]},
+ verify:{c:'verify',tag:'🔍 핵심 원리',title:'왜 표를 다시 확인할 수 있을까?',lead:'비밀인데도 재검증이 되는 비밀은, 표가 사라지지 않고 영원히 남기 때문이에요.',reasons:[
+  {t:'모든 표가 공책에 영원히 남아요',p:'한 번 투표하면 잠긴 표가 블록체인에 영구히 기록돼요. 중간에 사라질 수 없어서 언제든 처음부터 다시 셀 수 있어요.',ex:'지우개로 못 지우는 펜으로 적은 출석부 같아요.'},
+  {t:'내 표가 들어갔는지 직접 확인해요',p:'나만 아는 번호표로 내 표가 잘 들어갔는지 확인해요. 남들은 그게 누구 것인지 모르니 비밀은 그대로예요.',ex:'택배 송장번호로 내 택배만 추적하는 것과 같아요. 📦'},
+  {t:'누구나 합계를 다시 셀 수 있어요',p:'공책이 모두에게 공개돼 있어, 의심되면 누구든 처음부터 다시 더해볼 수 있어요.',ex:'시험 점수를 반 전체가 다시 더해보고 “맞네!” 하는 것.'}]},
+ tamper:{c:'tamper',tag:'🛡️ 핵심 원리',title:'왜 한 표도 몰래 못 바꿀까?',lead:'블록들이 ‘도장’으로 사슬처럼 연결돼 있어서, 하나만 바꿔도 전부 들통나요.',reasons:[
+  {t:'블록마다 앞 블록의 도장이 있어요',p:'각 블록엔 앞 블록을 본뜬 특별한 도장(해시)이 있어요. 내용이 조금만 달라져도 도장 모양이 완전히 변해요.',ex:'앞 페이지를 사진 찍어 다음 페이지에 붙여두는 것과 같아요.'},
+  {t:'하나 고치면 뒤가 전부 깨져요',p:'가운데 표를 바꾸면 그 도장이 달라지고 → 다음 도장과 안 맞고 → 줄줄이 안 맞아요. 와르르 들통나요.',ex:'도미노처럼 하나 건드리면 전부 티가 나요.'},
+  {t:'모두의 공책을 동시에 바꿔야 해요',p:'공책은 수많은 사람이 똑같이 가져요. 위조하려면 모든 공책을 동시에 몰래 바꿔야 하는데 사실상 불가능해요.',ex:'반 친구 30명 공책을 동시에 고치는 건 불가능하죠.'}]},
+ watch:{c:'watch',tag:'🌍 핵심 원리',title:'왜 한 명이 거짓말을 못 할까?',lead:'공책을 한 사람이 아니라 ‘모두’가 나눠 갖고 함께 검사하기 때문이에요.',reasons:[
+  {t:'공책이 모두에게 있어요 (분산)',p:'한 명만 갖던 공책을 수많은 컴퓨터가 똑같이 나눠 가져요. 한 곳이 거짓말해도 나머지가 진실을 지켜요.',ex:'한 권을 잃어버려도 29권이 똑같이 남아있어요.'},
+  {t:'다수가 동의해야 추가돼요 (합의)',p:'새 표를 넣으려면 많은 참가자가 “규칙에 맞네”라고 동의해야 해요. 가짜 표는 나머지가 거절해요.',ex:'반장 혼자 못 정하고 반 전체가 손들어 정하는 것. ✋'},
+  {t:'모두가 결과를 직접 봐요 (투명)',p:'과정과 기록이 모두에게 열려 있어 누구나 감시자가 돼요. 숨길 곳이 없어요.',ex:'유리상자 안에서 표를 세는 것과 같아요. 🔎'}]},
+ 'stat-total':{c:'secret',tag:'📊 숫자 설명',title:'발급된 비밀 번호표',lead:'투표 자격이 있는 사람에게 나눠준, 이름과 분리된 비밀 표의 수예요.',reasons:[{t:'왜 번호표일까?',p:'자격은 이름으로 확인하지만 투표는 번호표로만 해요. 바꿔주는 순간 비밀투표가 시작돼요.',ex:'320명에게 자격 확인 후 번호표를 줬어요.'}]},
+ 'stat-cast':{c:'verify',tag:'📊 숫자 설명',title:'실제 투표한 표',lead:'번호표를 받은 사람 중 실제로 투표를 끝낸 표의 수예요.',reasons:[{t:'표가 어디 갔는지 알아요',p:'320장 중 몇 장이 들어왔는지 누구나 확인할 수 있어요. 표는 사라지지 않아요.',ex:'시뮬레이터에서 후보를 누를 때마다 늘어나요.'}]},
+ 'stat-block':{c:'tamper',tag:'📊 숫자 설명',title:'블록체인에 쌓인 블록',lead:'투표 기록이 담긴 페이지의 수예요. 도장으로 사슬처럼 연결돼요.',reasons:[{t:'많을수록 단단해요',p:'블록이 길게 연결될수록 가운데를 바꾸려면 더 많은 걸 한꺼번에 바꿔야 해서 위조가 어려워져요.',ex:'페이지가 도장으로 줄줄이 연결돼 있어요. ⛓️'}]},
+ 'stat-verify':{c:'verify',tag:'📊 숫자 설명',title:'재검증 통과율 100%',lead:'다시 검사했을 때 기록이 모두 정확하다고 확인된 비율이에요.',reasons:[{t:'100%의 뜻',p:'모든 블록의 도장이 맞고 표 개수도 정확하다는 뜻. 한 군데라도 어긋나면 100%가 안 나와요.',ex:'어긋난 곳 0개 = 위변조 없음의 증거.'}]},
+ step1:{c:'secret',tag:'1단계',title:'자격 확인 — “너 투표할 수 있어!”',lead:'투표 전, 진짜 자격이 있는지 먼저 확인해요.',reasons:[{t:'왜 필요할까?',p:'자격 없는 사람이 투표하거나 한 사람이 두 번 투표하는 걸 막아요.',ex:'출석부로 “우리 반 학생 맞네!”'},{t:'비밀의 출발점',p:'여기서 이름을 확인해 두고 다음 단계에서 떼어내기 때문에 비밀이 시작돼요.'}]},
+ step2:{c:'secret',tag:'2단계',title:'번호표 받기 — 이름을 떼는 순간',lead:'자격이 확인되면 이름 대신 비밀 번호표를 받아요.',reasons:[{t:'이름과 표를 끊어요',p:'번호표를 받는 순간 이름과 연결이 끊겨, 나중에 표를 봐도 누구 것인지 몰라요.',ex:'놀이공원 손목밴드와 비슷해요.'},{t:'딱 한 장만',p:'한 사람당 한 장이라 두 번 투표를 막아요.'}]},
+ step3:{c:'tamper',tag:'3단계',title:'투표 & 잠금 — 자물쇠 채워 기록',lead:'후보를 고르고 표를 자물쇠로 잠근 채 공책에 올려요.',reasons:[{t:'왜 잠가서 올릴까?',p:'잠긴 채 올리면 내용이 안 보여 비밀이 지켜지고, 표는 기록으로 남아요.',ex:'잠긴 투표함에 표를 넣는 것. 🔒'},{t:'올리면 못 바꿔요',p:'한 번 기록되면 모두의 공책에 동시에 복사돼 고칠 수 없어요.'}]},
+ step4:{c:'watch',tag:'4단계',title:'개표 — 누군지 모른 채 숫자만',lead:'투표가 끝나면 누가 뽑았는지 모른 채 숫자만 합쳐요.',reasons:[{t:'비밀을 지키며 세요',p:'암호·영지식 기술 덕분에 표를 하나씩 까보지 않고도 합계를 정확히 내요.',ex:'결과는 “1번 132표” 처럼 숫자만 나와요.'},{t:'모두가 함께 세요',p:'여러 참가자가 같이 세고 결과가 맞는지 비교해요.'}]},
+ step5:{c:'verify',tag:'5단계',title:'재검증 — 누구나 다시 확인',lead:'결과가 나온 뒤에도 의심되면 누구든 다시 검사할 수 있어요.',reasons:[{t:'기록이 다 남아요',p:'모든 표와 도장이 공책에 남아 언제든 다시 셀 수 있어요.',ex:'몇 년 뒤에도 확인 가능해요.'},{t:'내 표도 직접 확인',p:'내 번호표로 확인하면서도 남들에겐 비밀이 유지돼요.'}]},
+ ledger:{c:'tamper',tag:'⛓️ 장부 읽는 법',title:'이 한 줄(블록)이 말해주는 것',lead:'블록 한 줄에 비밀 보장과 검증 가능이 동시에 담겨 있어요.',reasons:[{t:'번호표만 있고 이름은 없어요',p:'“#7X9K”처럼 번호표만 적혀 누가 뽑았는지 몰라요. → 비밀 보장',ex:'이름이 없으니 추적 불가!'},{t:'표 내용은 잠겨 있어요',p:'🔒 표시처럼 내용이 암호로 잠겨 무엇을 골랐는지 안 보여요. → 비밀 보장'},{t:'이전 블록 도장이 들어있어요',p:'“a1f9…” 도장이 앞 블록과 연결돼, 하나만 바꿔도 다 들통나요. → 위변조 불가 & 검증',ex:'이 도장으로 사슬이 안 끊겼는지 확인해요.'}]},
+ enc:{c:'secret',tag:'✨ 마법 1',title:'암호화 — 표를 자물쇠로 잠그기',lead:'표 내용을 비밀 열쇠로 잠가, 열쇠 없이는 못 읽게 만드는 기술이에요.',reasons:[{t:'어떻게 비밀이 될까?',p:'잠긴 표는 의미 없는 글자 덩어리라, 공책에 올려도 내용이 안 새요.',ex:'비밀 일기장 자물쇠와 똑같아요. 🔒'},{t:'그래도 셀 수 있어요',p:'특별한 방법으로 잠긴 채로도 개수와 합계를 계산할 수 있어요.'}]},
+ zkp:{c:'verify',tag:'✨ 마법 2',title:'영지식증명 — 안 보여주고 증명하기',lead:'내용은 안 보여주면서 “규칙은 지켰다”만 증명하는 신기한 수학이에요.',reasons:[{t:'무엇을 증명?',p:'“후보 한 명에게 한 표만” 같은 규칙을 표를 까보지 않고 증명해요.',ex:'가방 안 열고 “숙제 있어요” 증명 🎁'},{t:'왜 중요?',p:'부정은 막고 비밀은 지키는, 비밀+검증을 동시에 가능하게 하는 핵심이에요.'}]},
+ anon:{c:'watch',tag:'✨ 마법 3',title:'익명화 — 이름표 떼고 번호표 붙이기',lead:'사람과 표의 연결을 끊어, 표를 봐도 누구 것인지 모르게 해요.',reasons:[{t:'어떻게 끊을까?',p:'자격 확인 후 이름을 떼고 무작위 번호표를 줘요. 연결 정보를 안 남겨요.',ex:'이름표 떼고 번호표 붙이기 🏷️'},{t:'그래도 한 번만',p:'번호표는 한 사람당 하나라 익명이면서 중복 투표는 막혀요.'}]}
+},
+en:{
+ secret:{c:'secret',tag:'🤫 Core idea',title:'Why is it perfectly secret?',lead:'Votes go into a notebook everyone can see — so how is “who voted” hidden? Three layers.',reasons:[
+  {t:'It cuts your name off the vote (anonymization)',p:'It checks eligibility, then hands you a secret tag instead of your name, snapping the link between the two. The tag alone reveals nothing.',ex:'The book says “#7X9K → No.1”, never “Cheolsu → No.1”.'},
+  {t:'It locks the vote shut (encryption)',p:'The vote is locked with a secret key before going into the book. Even looking at the book, you can’t see the choice inside.',ex:'Like a diary with a padlock on it. 🔒'},
+  {t:'It proves the rules without opening it (ZK proof)',p:'It mathematically proves “exactly one vote for one candidate” without revealing the vote — blocking fraud while keeping secrecy.',ex:'Proving “my homework is inside” without opening the bag. 🎁'}]},
+ verify:{c:'verify',tag:'🔍 Core idea',title:'Why can votes be re-checked?',lead:'Secret yet re-verifiable — because votes never disappear; they stay forever.',reasons:[
+  {t:'Every vote stays in the book forever',p:'Once cast, the locked vote is recorded permanently on the chain. It can’t vanish, so it can be recounted from scratch anytime.',ex:'Like a roll-call written in un-erasable ink.'},
+  {t:'You check your own vote went in',p:'With your private tag you confirm your vote landed — yet others can’t tell whose tag it is, so secrecy holds.',ex:'Like tracking your parcel by its tracking number. 📦'},
+  {t:'Anyone can re-add the total',p:'The book is public, so anyone in doubt can re-sum every vote from the start.',ex:'The whole class re-adds the scores and says “Yep, correct!”'}]},
+ tamper:{c:'tamper',tag:'🛡️ Core idea',title:'Why can’t even one vote be changed?',lead:'Blocks are chained by “stamps”, so altering one breaks all of them.',reasons:[
+  {t:'Each block carries the previous one’s stamp',p:'Every block holds a special stamp (hash) of the block before it. The tiniest change makes the stamp look totally different.',ex:'Like photographing each page and gluing it onto the next.'},
+  {t:'Change one and the rest collapse',p:'Alter a middle vote and its stamp changes → the next stamp no longer matches → and so on down the line. Instantly exposed.',ex:'Like dominoes — touch one and the whole row shows it.'},
+  {t:'You’d have to change everyone’s book at once',p:'Many people each hold an identical book. Forging it means secretly changing them all at the same time — practically impossible.',ex:'You can’t secretly edit 30 classmates’ notebooks at once.'}]},
+ watch:{c:'watch',tag:'🌍 Core idea',title:'Why can no single person lie?',lead:'The book is held and checked by everyone, not one person.',reasons:[
+  {t:'Everyone holds the book (distributed)',p:'Instead of one keeper, countless computers each hold an identical copy. If one lies, the rest preserve the truth.',ex:'Lose one copy and 29 identical ones remain.'},
+  {t:'New votes need majority agreement (consensus)',p:'Adding a vote requires many participants to agree it follows the rules. A fake vote gets rejected by the rest.',ex:'Not one captain deciding — the whole class raises hands. ✋'},
+  {t:'Everyone sees the result (transparency)',p:'The process and records are open to all, so anyone can be a watcher. There’s nowhere to hide.',ex:'Like counting votes inside a glass box. 🔎'}]},
+ 'stat-total':{c:'secret',tag:'📊 Number',title:'Secret ballots issued',lead:'Name-free secret ballots handed to eligible voters.',reasons:[{t:'Why a tag?',p:'Eligibility is checked by name, but voting uses only the tag. That switch is where secrecy begins.',ex:'320 people verified, then given tags.'}]},
+ 'stat-cast':{c:'verify',tag:'📊 Number',title:'Votes actually cast',lead:'How many tag-holders have finished voting.',reasons:[{t:'You can see where votes are',p:'Anyone can check how many of the 320 came in. Votes never vanish.',ex:'It grows each time you tap a candidate in the simulator.'}]},
+ 'stat-block':{c:'tamper',tag:'📊 Number',title:'Blocks on the chain',lead:'Pages holding the vote records, chained by stamps.',reasons:[{t:'More blocks = stronger',p:'The longer the chain, the more you’d have to change at once to alter the middle — making forgery harder.',ex:'Pages linked in a row by stamps. ⛓️'}]},
+ 'stat-verify':{c:'verify',tag:'📊 Number',title:'Re-verification pass rate 100%',lead:'Share confirmed fully correct on re-check.',reasons:[{t:'What 100% means',p:'Every block’s stamp matches and the count is exact. One mismatch and it wouldn’t be 100%.',ex:'Zero mismatches = proof of no tampering.'}]},
+ step1:{c:'secret',tag:'Step 1',title:'Check eligibility — “You can vote!”',lead:'Before voting, confirm the person is truly eligible.',reasons:[{t:'Why needed?',p:'It stops ineligible people from voting and anyone from voting twice.',ex:'A roll-call: “Yes, you’re in our class!”'},{t:'Where secrecy starts',p:'The name is checked here, then removed in the next step — so secrecy begins right here.'}]},
+ step2:{c:'secret',tag:'Step 2',title:'Get a tag — the moment your name comes off',lead:'Once eligible, you get a secret tag instead of your name.',reasons:[{t:'It cuts name from vote',p:'The instant you get the tag, the link to your name is severed — later, the vote reveals no identity.',ex:'Like a theme-park wristband instead of your name.'},{t:'Exactly one tag',p:'One tag per person, which blocks double-voting.'}]},
+ step3:{c:'tamper',tag:'Step 3',title:'Vote & lock — recorded under a padlock',lead:'Pick a candidate and put the vote into the book locked shut.',reasons:[{t:'Why lock it first?',p:'Locked, the content stays hidden (secrecy) while the vote remains on record.',ex:'Like dropping a ballot into a sealed box. 🔒'},{t:'Once in, unchangeable',p:'Recorded, it’s copied to everyone’s book at once and can’t be edited.'}]},
+ step4:{c:'watch',tag:'Step 4',title:'Count — numbers only, no names',lead:'After voting, totals are added without knowing who chose what.',reasons:[{t:'Counted while secret',p:'Crypto + ZK let the totals be computed exactly without opening each vote.',ex:'Results read like “No.1: 132 votes”.'},{t:'Counted together',p:'Many participants count and compare to confirm the totals match.'}]},
+ step5:{c:'verify',tag:'Step 5',title:'Re-verify — anyone can re-check',lead:'Even after results, anyone in doubt can re-examine everything.',reasons:[{t:'All records remain',p:'Every vote and stamp stays in the book, so it can be recounted anytime.',ex:'Still verifiable years later.'},{t:'Check your own too',p:'You verify via your tag while it stays secret to everyone else.'}]},
+ ledger:{c:'tamper',tag:'⛓️ Reading the ledger',title:'What this one row (block) tells you',lead:'A single row holds both secrecy and verifiability at once.',reasons:[{t:'Only a tag, no name',p:'Just “#7X9K” — no idea who voted. → Secrecy',ex:'No name means no tracing!'},{t:'The vote is locked',p:'The 🔒 means the content is encrypted shut — the choice is invisible. → Secrecy'},{t:'It carries the previous stamp',p:'A stamp like “a1f9…” links to the block before, so any single change is exposed. → Tamper-proof & verifiable',ex:'This stamp lets you confirm the chain is unbroken.'}]},
+ enc:{c:'secret',tag:'✨ Spell 1',title:'Encryption — locking the vote shut',lead:'Locks the vote with a secret key so no one can read it without the key.',reasons:[{t:'How it stays secret',p:'A locked vote is just a blob of meaningless characters, so nothing leaks even in the open book.',ex:'Exactly like a diary padlock. 🔒'},{t:'Still countable',p:'Special methods let the count and total be computed while it stays locked.'}]},
+ zkp:{c:'verify',tag:'✨ Spell 2',title:'Zero-knowledge proof — prove without showing',lead:'Amazing math that proves “the rules were followed” while showing nothing.',reasons:[{t:'Proves what?',p:'Rules like “one vote for one candidate” are proven without opening the vote.',ex:'Proving “homework is inside” without opening the bag. 🎁'},{t:'Why it matters',p:'It blocks fraud and keeps secrets — the key to doing secrecy + verification at once.'}]},
+ anon:{c:'watch',tag:'✨ Spell 3',title:'Anonymization — name tag off, number tag on',lead:'Severs the link between person and vote, so a vote reveals no identity.',reasons:[{t:'How it’s severed',p:'After the eligibility check, the name comes off and a random tag goes on, with no link kept.',ex:'Name tag off, number tag on. 🏷️'},{t:'Still one vote only',p:'One tag per person — anonymous, yet double-voting is blocked.'}]}
+}};
+
+/* ===================== 상태 & 렌더 ===================== */
+let lang = (window.__LANG__==='en'||window.__LANG__==='ko') ? window.__LANG__
+         : (document.cookie.match(/(?:^|;\s*)lang=(ko|en)/)?.[1])
+         || ((navigator.language||'').toLowerCase().startsWith('ko')?'ko':'en');
+
+const CANDS=[{e:'🍎',col:'#ff4d8d'},{e:'🍊',col:'#ff8a1e'},{e:'🍇',col:'#7c4dff'}];
+const TOTAL_BALLOTS=320, INVALID=0;
+let votes, blockCount, ledger, prevHash;
+// 실제 투표처럼 0표에서 시작 — 결과는 오직 사용자의 클릭으로 결정돼요(매번 다름)
+function seed(){votes=[0,0,0];blockCount=0;ledger=[];prevHash='0000';}
+seed();
+
+function T(k){return (DICT[lang]&&DICT[lang][k])||(DICT.ko[k])||'';}
+function castTotal(){return votes[0]+votes[1]+votes[2];}
+
+function render(){
+  document.documentElement.lang=lang;
+  document.title=T('doc.title');
+  document.querySelectorAll('[data-i18n]').forEach(el=>{el.innerHTML=T(el.dataset.i18n);});
+  document.getElementById('btn-ko').classList.toggle('act',lang==='ko');
+  document.getElementById('btn-en').classList.toggle('act',lang==='en');
+  renderStats();renderLedger();applyChartLang();
+}
+function renderStats(){
+  document.getElementById('s-total').textContent=TOTAL_BALLOTS;
+  document.getElementById('s-cast').textContent=castTotal();
+  document.getElementById('s-block').textContent=blockCount;
+  for(let i=0;i<3;i++)document.getElementById('cv'+i).textContent=votes[i];
+}
+function renderLedger(){
+  const tb=document.getElementById('ledgerBody');
+  if(ledger.length===0){
+    tb.innerHTML=`<tr><td colspan="5" style="text-align:center;color:var(--ink2);font-weight:600;padding:22px">${T('ledger.empty')}</td></tr>`;
+    return;
+  }
+  tb.innerHTML=ledger.slice(0,6).map(r=>`<tr data-key="ledger"><td>#${String(r.b).padStart(3,'0')}</td>
+    <td class="mono">${r.tag}…</td><td><span class="pill pl-lock">${T('tbl.lock')}</span></td>
+    <td class="mono">${r.h}…</td><td><span class="pill pl-ok">${T('tbl.ok')}</span></td></tr>`).join('');
+  tb.querySelectorAll('[data-key]').forEach(el=>el.addEventListener('click',()=>openModal('ledger')));
+  const nr=tb.querySelector('tr');if(nr&&ledger._new){nr.classList.add('new');ledger._new=false;}
+}
+
+/* ===== 언어 전환 =====
+   배포 환경(/ko·/en URL)에서는 해당 주소로 이동해 공유·OG가 언어별로 일치하게,
+   로컬 파일(file://)에서는 새로고침 없이 클라이언트 전환. */
+function setLang(l){
+  document.cookie='lang='+l+';path=/;max-age=31536000';
+  const p=location.pathname.replace(/\/+$/,'');
+  if(p==='/ko'||p==='/en'){ if(p!=='/'+l) location.pathname='/'+l; return; }
+  lang=l;render();
+}
+
+/* ===== 모달 ===== */
+const overlay=document.getElementById('overlay');
+function openModal(key){
+  const d=MODAL[lang]&&MODAL[lang][key]||MODAL.ko[key];if(!d)return;
+  const col=COLOR[d.c]||COLOR.ink;
+  const tag=document.getElementById('mTag');tag.textContent=d.tag;tag.style.color=col;
+  document.getElementById('mTitle').textContent=d.title;
+  document.getElementById('mLead').textContent=d.lead;
+  document.getElementById('mBody').innerHTML=d.reasons.map((r,i)=>`<div class="reason">
+    <div class="rn" style="background:${col}">${i+1}</div><div><div class="rt">${r.t}</div>
+    <div class="rp">${r.p}</div>${r.ex?`<div class="ex">💡 ${r.ex}</div>`:''}</div></div>`).join('');
+  overlay.classList.add('on');document.body.style.overflow='hidden';
+}
+function closeModal(){overlay.classList.remove('on');document.body.style.overflow='';}
+document.querySelectorAll('[data-key]').forEach(el=>{if(el.dataset.key!=='ledger')el.addEventListener('click',()=>openModal(el.dataset.key));});
+document.getElementById('closeBtn').addEventListener('click',closeModal);
+overlay.addEventListener('click',e=>{if(e.target===overlay)closeModal();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
+
+/* ===== 투표 시뮬 ===== */
+function rndHex(n){let s='';const h='0123456789abcdef';for(let i=0;i<n;i++)s+=h[Math.floor(Math.random()*16)];return s;}
+function rndTag(){let s='#';const c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';for(let i=0;i<4;i++)s+=c[Math.floor(Math.random()*c.length)];return s;}
+let toastTimer;
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('on');
+  clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('on'),2600);}
+function confetti(x,y){const em=['🎉','✨','🗳️','🔒','⛓️','🍎','🍊','🍇'];
+  for(let i=0;i<14;i++){const s=document.createElement('div');s.className='confetti';
+    s.textContent=em[Math.floor(Math.random()*em.length)];s.style.left=x+'px';s.style.top=y+'px';
+    s.style.setProperty('--tx',(Math.random()*220-110)+'px');
+    s.style.setProperty('--ty',(Math.random()*-180-40)+'px');
+    s.style.setProperty('--r',(Math.random()*540-270)+'deg');
+    document.body.appendChild(s);setTimeout(()=>s.remove(),950);}}
+function vote(i,ev){
+  if(castTotal()>=TOTAL_BALLOTS){toast(T('sim.toast.full'));return;}
+  votes[i]++;blockCount++;
+  const tag=rndTag();
+  // 새 블록의 "이전 블록 도장"은 직전 블록의 해시 → 사슬처럼 연결
+  ledger.unshift({b:blockCount,tag:tag,h:prevHash});
+  prevHash=rndHex(4);
+  ledger._new=true;
+  const bc=document.getElementById('ballotNum');bc.textContent=tag;
+  document.getElementById('ballotState').textContent=T('sim.ballot.done').replace('{n}',blockCount);
+  renderStats();renderLedger();updateCharts();
+  runProcess(i,tag,blockCount);
+  toast(T('sim.toast').replace('{n}',blockCount));
+  if(ev){const r=ev.currentTarget.getBoundingClientRect();confetti(r.right-30,r.top+r.height/2);}
+}
+/* 표 한 장의 전 과정을 단계별로 펼쳐 보여줌 */
+let procTimers=[];
+function clearProcess(){
+  procTimers.forEach(clearTimeout);procTimers=[];
+  document.querySelectorAll('#proc .pstep').forEach(s=>{s.classList.remove('active','done');
+    const v=s.querySelector('.ps-v');if(v)v.textContent='';});
+}
+function runProcess(ci,tag,block){
+  clearProcess();
+  const cand=T('cand.'+ci);
+  const vals=[T('proc.v0'),
+    T('proc.v1').replace('{tag}',tag),
+    T('proc.v2').replace('{c}',cand),
+    T('proc.v3').replace('{n}',block),
+    T('proc.v4')];
+  const steps=[...document.querySelectorAll('#proc .pstep')];
+  const gap=440;
+  steps.forEach((s,k)=>{
+    procTimers.push(setTimeout(()=>{
+      s.classList.add('active');
+      const v=s.querySelector('.ps-v');if(v)v.textContent=vals[k];
+    },120+k*gap));
+    procTimers.push(setTimeout(()=>{s.classList.add('done');s.classList.remove('active');},120+k*gap+330));
+  });
+}
+document.querySelectorAll('.candidate').forEach(b=>b.addEventListener('click',e=>vote(+b.dataset.cand,e)));
+document.getElementById('resetBtn').addEventListener('click',()=>{
+  seed();clearProcess();
+  document.getElementById('ballotNum').textContent='#----';
+  document.getElementById('ballotState').textContent=T('sim.ballot.idle');
+  renderStats();renderLedger();updateCharts();
+});
+
+/* ===== 차트 ===== */
+Chart.defaults.color='#8a6f57';Chart.defaults.font.family="'Pretendard',sans-serif";Chart.defaults.font.weight='600';
+let barChart,pieChart;
+function buildCharts(){
+  barChart=new Chart(document.getElementById('barChart'),{type:'bar',
+    data:{labels:[],datasets:[{data:[...votes,INVALID],backgroundColor:['#ff4d8d','#ff8a1e','#7c4dff','#d8c4b0'],borderRadius:10,barThickness:46}]},
+    options:{plugins:{legend:{display:false}},animation:{duration:500},
+      scales:{y:{grid:{color:'#ffe0bd'},ticks:{stepSize:30}},x:{grid:{display:false},ticks:{font:{size:13,weight:'700'}}}}}});
+  pieChart=new Chart(document.getElementById('pieChart'),{type:'doughnut',
+    data:{labels:[],datasets:[{data:[castTotal(),TOTAL_BALLOTS-castTotal()],backgroundColor:['#10b8a6','#ffce8a'],borderWidth:0,cutout:'64%'}]},
+    options:{plugins:{legend:{position:'bottom',labels:{font:{size:13,weight:'700'},padding:16,usePointStyle:true,pointStyle:'circle'}}}}});
+}
+function updateCharts(){
+  barChart.data.datasets[0].data=[...votes,INVALID];barChart.update();
+  pieChart.data.datasets[0].data=[castTotal(),TOTAL_BALLOTS-castTotal()];pieChart.update();
+}
+function applyChartLang(){
+  if(!barChart)return;
+  barChart.data.labels=[T('cand.0'),T('cand.1'),T('cand.2'),T('chart.invalid')];barChart.update();
+  pieChart.data.labels=[T('chart.voted'),T('chart.notyet')];pieChart.update();
+}
+
+/* ===== 등장 애니메이션 ===== */
+function initReveal(){
+  const els=[...document.querySelectorAll('.reveal')];
+  const io=new IntersectionObserver((ents)=>{ents.forEach(e=>{if(e.isIntersecting){
+    e.target.style.transitionDelay=(Math.min([...e.target.parentNode.children].indexOf(e.target),5)*0.07)+'s';
+    e.target.classList.add('in');io.unobserve(e.target);}});},{threshold:.12});
+  els.forEach(el=>io.observe(el));
+}
+
+/* ===== 시작 ===== */
+buildCharts();render();initReveal();
+</script>
+</body>
+</html>

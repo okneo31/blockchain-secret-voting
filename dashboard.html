@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🗳️ 블록체인 비밀투표 대시보드</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+  :root{
+    --bg:#fff7ec;          /* 따뜻한 크림/살구 배경 */
+    --ink:#2a2233;         /* 글자 (따뜻한 진보라잉크) */
+    --ink2:#7a6f80;        /* 보조 글자 */
+    --line:#f1e2cf;        /* 옅은 경계선 */
+    --card:#ffffff;
+    --secret:#ff4d8d;      /* 비밀 = 생기 핑크 */
+    --verify:#12b5a3;      /* 검증 = 밝은 청록 */
+    --tamper:#4a7bff;      /* 위변조 = 선명한 파랑 */
+    --watch:#ff9d2e;       /* 감시 = 따뜻한 주황 */
+    --good:#22c55e;
+    --bad:#ff5a5a;
+    --shadow:0 8px 24px rgba(255,160,80,.14);
+    --shadow-h:0 18px 42px rgba(255,120,80,.24);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:'Pretendard',sans-serif;
+    background:
+      radial-gradient(900px 460px at 8% -8%,#ffe0b0 0%,transparent 60%),
+      radial-gradient(820px 440px at 104% 4%,#ffd0e4 0%,transparent 58%),
+      radial-gradient(700px 500px at 50% 120%,#cdf3ec 0%,transparent 60%),
+      var(--bg);
+    color:var(--ink);
+    line-height:1.7;
+    -webkit-font-smoothing:antialiased;
+    letter-spacing:-.01em;
+    padding:28px 20px 60px;
+  }
+  .wrap{max-width:1180px;margin:0 auto}
+
+  /* ---------- HEADER ---------- */
+  header{
+    background:linear-gradient(135deg,#fffaf2 0%,#fff0f6 55%,#fff6e6 100%);
+    border:1px solid #ffe3c2;
+    border-radius:26px;
+    padding:38px 40px;
+    box-shadow:var(--shadow);
+    position:relative;overflow:hidden;
+  }
+  header::before{
+    content:"";position:absolute;inset:0;border-radius:26px;padding:2px;
+    background:linear-gradient(120deg,var(--secret),var(--watch),var(--verify));
+    -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
+    -webkit-mask-composite:xor;mask-composite:exclude;opacity:.5;pointer-events:none;
+  }
+  .kicker{font-size:14px;font-weight:800;color:var(--secret);letter-spacing:.04em}
+  header h1{font-size:38px;font-weight:800;margin-top:8px;letter-spacing:-.03em;line-height:1.25}
+  header h1 .hl{
+    background:linear-gradient(transparent 58%,#ffd86b 58%,#ffc04a 100%);padding:0 4px;border-radius:3px;
+  }
+  header p{font-size:17px;color:var(--ink2);margin-top:14px;max-width:720px;font-weight:500}
+  .tip{margin-top:18px;font-size:14px;color:var(--ink2);font-weight:600;
+    display:inline-flex;gap:8px;align-items:center;background:#fff6e0;
+    border:1px solid #f1e2b6;padding:8px 14px;border-radius:12px}
+
+  /* 클릭 가능한 핵심 4배지 */
+  .pillars{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:24px}
+  @media(max-width:820px){.pillars{grid-template-columns:repeat(2,1fr)}}
+  .pillar{
+    cursor:pointer;border:2px solid var(--line);border-radius:18px;padding:18px;
+    background:var(--card);transition:.18s ease;text-align:left;position:relative;
+  }
+  .pillar:hover{transform:translateY(-5px);box-shadow:var(--shadow-h)}
+  .pillar:active{transform:translateY(-1px) scale(.99)}
+  .pillar .pe{font-size:30px}
+  .pillar .pt{font-weight:800;font-size:17px;margin-top:8px}
+  .pillar .pd{font-size:13px;color:var(--ink2);margin-top:3px;font-weight:500}
+  .pillar .more{font-size:12.5px;font-weight:800;margin-top:10px;display:inline-flex;align-items:center;gap:5px}
+  .pillar[data-key="secret"]{border-color:#f6cdda}.pillar[data-key="secret"] .pt,.pillar[data-key="secret"] .more{color:var(--secret)}
+  .pillar[data-key="verify"]{border-color:#bfe3de}.pillar[data-key="verify"] .pt,.pillar[data-key="verify"] .more{color:var(--verify)}
+  .pillar[data-key="tamper"]{border-color:#c8d8f7}.pillar[data-key="tamper"] .pt,.pillar[data-key="tamper"] .more{color:var(--tamper)}
+  .pillar[data-key="watch"]{border-color:#f3dcb1}.pillar[data-key="watch"] .pt,.pillar[data-key="watch"] .more{color:var(--watch)}
+
+  /* ---------- SECTION ---------- */
+  section{margin-top:30px}
+  .h{display:flex;align-items:baseline;gap:12px;margin-bottom:16px;padding-left:4px}
+  .h h2{font-size:23px;font-weight:800;letter-spacing:-.02em}
+  .h span{font-size:14px;color:var(--ink2);font-weight:500}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:20px;
+    padding:24px;box-shadow:var(--shadow)}
+  .grid{display:grid;gap:16px}
+  .g4{grid-template-columns:repeat(4,1fr)}
+  .g2{grid-template-columns:1.25fr 1fr}
+  @media(max-width:900px){.g4{grid-template-columns:repeat(2,1fr)}.g2{grid-template-columns:1fr}}
+
+  /* STAT */
+  .stat{cursor:pointer;transition:.18s}
+  .stat:hover{transform:translateY(-4px);box-shadow:var(--shadow-h)}
+  .stat .ic{font-size:24px}
+  .stat .num{font-size:34px;font-weight:800;margin-top:4px;letter-spacing:-.02em}
+  .stat .lbl{color:var(--ink2);font-size:14px;font-weight:600;margin-top:2px}
+  .stat .hint{font-size:12px;font-weight:700;color:var(--verify);margin-top:10px}
+
+  /* FLOW STEPS */
+  .flow{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+  @media(max-width:900px){.flow{grid-template-columns:repeat(2,1fr)}}
+  .step{cursor:pointer;background:var(--card);border:1px solid var(--line);border-radius:16px;
+    padding:18px 14px;text-align:center;transition:.18s;position:relative}
+  .step:hover{transform:translateY(-5px);box-shadow:var(--shadow-h);border-color:#d9d3c4}
+  .step .n{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;
+    margin:0 auto 8px;font-weight:800;font-size:13px;color:#fff;background:var(--ink)}
+  .step .e{font-size:30px}
+  .step .t{font-weight:800;margin-top:6px;font-size:15.5px}
+  .step .d{color:var(--ink2);font-size:12.5px;margin-top:3px;font-weight:500}
+  .step .tap{font-size:11.5px;color:var(--ink2);font-weight:700;margin-top:8px;opacity:.7}
+
+  /* TABLE */
+  table{width:100%;border-collapse:collapse;font-size:14.5px}
+  th,td{padding:13px 14px;text-align:left;border-bottom:1px solid var(--line)}
+  th{color:var(--ink2);font-size:12.5px;font-weight:700;letter-spacing:.03em}
+  tr:last-child td{border-bottom:none}
+  tbody tr{cursor:pointer;transition:.12s}
+  tbody tr:hover{background:#faf8f2}
+  .mono{font-family:'Consolas','D2Coding',monospace;color:var(--tamper);font-weight:600}
+  .pill{padding:4px 11px;border-radius:999px;font-size:12.5px;font-weight:800;display:inline-block}
+  .pl-lock{background:#eaf0fc;color:var(--tamper)}
+  .pl-ok{background:#e6f4ec;color:var(--good)}
+  .pl-secret{background:#fde6ee;color:var(--secret)}
+
+  /* CONCEPT */
+  .concept{cursor:pointer;display:flex;gap:14px;align-items:flex-start;padding:15px;border-radius:14px;
+    border:1px solid var(--line);background:var(--card);margin-bottom:12px;transition:.16s}
+  .concept:hover{background:#faf8f2;transform:translateX(4px);border-color:#d9d3c4}
+  .concept .em{font-size:28px;flex-shrink:0}
+  .concept b{font-size:15.5px}
+  .concept p{color:var(--ink2);font-size:13.5px;margin-top:2px;font-weight:500}
+  .concept .go{margin-left:auto;align-self:center;font-size:20px;color:var(--ink2)}
+
+  /* COMPARE */
+  .comp{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:640px){.comp{grid-template-columns:1fr}}
+  .box{border-radius:16px;padding:18px;border:1px solid var(--line)}
+  .box.bad{background:#fdf0ef;border-color:#f3d2d0}
+  .box.good{background:#eef7f1;border-color:#cfe8d8}
+  .box h3{font-size:16px;margin-bottom:10px}
+  .box ul{list-style:none}
+  .box li{padding:5px 0;font-size:14px;display:flex;gap:8px;font-weight:500}
+
+  .legend{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+
+  footer{text-align:center;color:var(--ink2);font-size:13px;margin-top:40px;font-weight:500}
+
+  /* ---------- MODAL ---------- */
+  .overlay{position:fixed;inset:0;background:rgba(20,24,35,.55);backdrop-filter:blur(3px);
+    display:none;align-items:center;justify-content:center;padding:20px;z-index:50;opacity:0;transition:.2s}
+  .overlay.on{display:flex;opacity:1}
+  .modal{background:var(--card);border-radius:24px;max-width:560px;width:100%;max-height:88vh;
+    overflow-y:auto;box-shadow:0 30px 80px rgba(0,0,0,.4);transform:translateY(16px) scale(.98);transition:.22s}
+  .overlay.on .modal{transform:none}
+  .modal .top{padding:26px 28px 18px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--card);
+    border-radius:24px 24px 0 0}
+  .modal .tag{font-size:13px;font-weight:800;letter-spacing:.03em}
+  .modal h3{font-size:25px;font-weight:800;margin-top:6px;letter-spacing:-.02em;line-height:1.3}
+  .modal .lead{font-size:15px;color:var(--ink2);margin-top:8px;font-weight:500}
+  .modal .body{padding:8px 28px 26px}
+  .reason{display:flex;gap:14px;padding:16px 0;border-bottom:1px dashed var(--line)}
+  .reason:last-child{border-bottom:none}
+  .reason .rn{flex-shrink:0;width:30px;height:30px;border-radius:9px;display:grid;place-items:center;
+    font-weight:800;color:#fff;font-size:15px}
+  .reason .rt{font-weight:800;font-size:16px}
+  .reason .rp{font-size:14.5px;color:var(--ink2);margin-top:3px;font-weight:500}
+  .reason .ex{font-size:13.5px;margin-top:8px;background:#fbf6e8;border:1px solid #f0e4bf;
+    padding:9px 12px;border-radius:11px;color:#6b5a1e;font-weight:600}
+  .closebtn{position:absolute;top:22px;right:24px;width:34px;height:34px;border:none;cursor:pointer;
+    background:#f0ede3;border-radius:10px;font-size:18px;color:var(--ink);font-weight:700;transition:.15s}
+  .closebtn:hover{background:#e3dfd2;transform:rotate(90deg)}
+  .kbd{font-size:12px;color:var(--ink2);text-align:center;padding:0 28px 22px;font-weight:600}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ================= HEADER ================= -->
+  <header>
+    <div class="kicker">⛓️ BLOCKCHAIN VOTING · 초등학생용 설명 대시보드</div>
+    <h1>비밀은 <span class="hl">완벽히 지키고</span>,<br>표는 <span class="hl">누구나 다시 확인</span>하는 투표</h1>
+    <p>누구를 뽑았는지는 아무도 몰라요. 그런데도 표가 정확히 세어졌는지는 모두가 확인할 수 있어요.
+       어떻게 그게 가능한지, 아래 카드를 <b>눌러서</b> 이유를 하나씩 확인해 보세요!</p>
+    <div class="tip">👆 거의 모든 칸을 클릭하면 “왜 그런지” 자세한 설명이 열려요.</div>
+
+    <div class="pillars">
+      <button class="pillar" data-key="secret">
+        <div class="pe">🤫</div><div class="pt">비밀 보장</div>
+        <div class="pd">누가 뽑았는지 아무도 몰라요</div>
+        <div class="more">왜 가능할까? →</div>
+      </button>
+      <button class="pillar" data-key="verify">
+        <div class="pe">🔍</div><div class="pt">재검증 가능</div>
+        <div class="pd">표를 언제든 다시 셀 수 있어요</div>
+        <div class="more">왜 가능할까? →</div>
+      </button>
+      <button class="pillar" data-key="tamper">
+        <div class="pe">🛡️</div><div class="pt">위변조 불가</div>
+        <div class="pd">한 표도 몰래 못 바꿔요</div>
+        <div class="more">왜 가능할까? →</div>
+      </button>
+      <button class="pillar" data-key="watch">
+        <div class="pe">🌍</div><div class="pt">모두가 감시</div>
+        <div class="pd">한 명이 거짓말 못 해요</div>
+        <div class="more">왜 가능할까? →</div>
+      </button>
+    </div>
+  </header>
+
+  <!-- ================= STATS ================= -->
+  <section>
+    <div class="h"><h2>📈 한눈에 보는 현황</h2><span>카드를 누르면 자세한 뜻을 알려줘요</span></div>
+    <div class="grid g4">
+      <div class="card stat" data-key="stat-total"><div class="ic">🎫</div><div class="num" id="s1">320</div><div class="lbl">발급된 비밀 번호표</div><div class="hint">눌러서 설명 보기 →</div></div>
+      <div class="card stat" data-key="stat-cast"><div class="ic">📥</div><div class="num" id="s2">300</div><div class="lbl">실제 투표한 표</div><div class="hint">눌러서 설명 보기 →</div></div>
+      <div class="card stat" data-key="stat-block"><div class="ic">🧱</div><div class="num" id="s3">75</div><div class="lbl">블록체인에 쌓인 블록</div><div class="hint">눌러서 설명 보기 →</div></div>
+      <div class="card stat" data-key="stat-verify"><div class="ic">✅</div><div class="num">100%</div><div class="lbl">재검증 통과율</div><div class="hint">눌러서 설명 보기 →</div></div>
+    </div>
+  </section>
+
+  <!-- ================= FLOW ================= -->
+  <section>
+    <div class="h"><h2>🚦 투표 한 장의 여행 (5단계)</h2><span>각 단계를 누르면 “이 단계가 왜 중요한지” 설명해요</span></div>
+    <div class="flow">
+      <div class="step" data-key="step1"><div class="n">1</div><div class="e">🙋</div><div class="t">자격 확인</div><div class="d">“너 맞아!” 출석부 체크</div><div class="tap">👆 자세히</div></div>
+      <div class="step" data-key="step2"><div class="n">2</div><div class="e">🎫</div><div class="t">번호표 받기</div><div class="d">이름 떼고 비밀번호표로</div><div class="tap">👆 자세히</div></div>
+      <div class="step" data-key="step3"><div class="n">3</div><div class="e">🔒</div><div class="t">투표 & 잠금</div><div class="d">표를 자물쇠로 암호화</div><div class="tap">👆 자세히</div></div>
+      <div class="step" data-key="step4"><div class="n">4</div><div class="e">🧮</div><div class="t">개표</div><div class="d">누군지 모른 채 숫자만</div><div class="tap">👆 자세히</div></div>
+      <div class="step" data-key="step5"><div class="n">5</div><div class="e">🔍</div><div class="t">재검증</div><div class="d">누구나 다시 확인 OK</div><div class="tap">👆 자세히</div></div>
+    </div>
+  </section>
+
+  <!-- ================= CHARTS ================= -->
+  <section>
+    <div class="grid g2">
+      <div class="card">
+        <div class="h" style="margin-bottom:8px"><h2 style="font-size:20px">📊 개표 결과</h2></div>
+        <p style="color:var(--ink2);font-size:13.5px;margin-bottom:14px;font-weight:500">표는 정확히 세었지만, 누가 뽑았는지는 끝까지 비밀이에요.</p>
+        <canvas id="barChart" height="180"></canvas>
+      </div>
+      <div class="card">
+        <div class="h" style="margin-bottom:8px"><h2 style="font-size:20px">🥧 투표 참여율</h2></div>
+        <p style="color:var(--ink2);font-size:13.5px;margin-bottom:14px;font-weight:500">번호표를 받은 사람 중 실제로 투표한 비율이에요.</p>
+        <canvas id="pieChart" height="180"></canvas>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= LEDGER ================= -->
+  <section>
+    <div class="h"><h2>⛓️ 블록체인 공책 (투표 장부)</h2><span>한 줄(블록)을 누르면 어떻게 비밀과 검증이 동시에 되는지 설명해요</span></div>
+    <div class="card">
+      <table>
+        <thead><tr><th>블록 #</th><th>비밀 번호표</th><th>표 내용</th><th>이전 블록 도장(해시)</th><th>상태</th></tr></thead>
+        <tbody>
+          <tr data-key="ledger"><td>#073</td><td class="mono">#7X9K…</td><td><span class="pill pl-lock">🔒 잠김</span></td><td class="mono">a1f9…</td><td><span class="pill pl-ok">✓ 확정</span></td></tr>
+          <tr data-key="ledger"><td>#072</td><td class="mono">#Qv2M…</td><td><span class="pill pl-lock">🔒 잠김</span></td><td class="mono">b3c7…</td><td><span class="pill pl-ok">✓ 확정</span></td></tr>
+          <tr data-key="ledger"><td>#071</td><td class="mono">#Lp8s…</td><td><span class="pill pl-lock">🔒 잠김</span></td><td class="mono">d8e1…</td><td><span class="pill pl-ok">✓ 확정</span></td></tr>
+          <tr data-key="ledger"><td>#070</td><td class="mono">#3Nh1…</td><td><span class="pill pl-lock">🔒 잠김</span></td><td class="mono">f0a4…</td><td><span class="pill pl-ok">✓ 확정</span></td></tr>
+        </tbody>
+      </table>
+      <div class="legend">
+        <span class="pill pl-secret">🤫 누가 뽑았는지 = 비밀</span>
+        <span class="pill pl-ok">🔍 표 개수·연결 = 누구나 확인</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= CONCEPTS + COMPARE ================= -->
+  <section>
+    <div class="grid g2">
+      <div class="card">
+        <div class="h" style="margin-bottom:8px"><h2 style="font-size:20px">✨ 비밀을 지키는 3가지 마법</h2></div>
+        <p style="color:var(--ink2);font-size:13.5px;margin-bottom:14px;font-weight:500">각 마법을 누르면 원리를 비유로 알려줘요.</p>
+        <div class="concept" data-key="enc"><div class="em">🔒</div><div><b>암호화</b><p>표를 자물쇠로 잠가서 숨겨요</p></div><div class="go">›</div></div>
+        <div class="concept" data-key="zkp"><div class="em">🎁</div><div><b>영지식증명</b><p>상자를 안 열고도 규칙을 증명해요</p></div><div class="go">›</div></div>
+        <div class="concept" data-key="anon"><div class="em">🏷️</div><div><b>익명화</b><p>이름표를 떼고 번호표를 붙여요</p></div><div class="go">›</div></div>
+      </div>
+      <div class="card">
+        <div class="h" style="margin-bottom:8px"><h2 style="font-size:20px">⚖️ 옛날 방식 vs 블록체인</h2></div>
+        <p style="color:var(--ink2);font-size:13.5px;margin-bottom:14px;font-weight:500">왜 블록체인이 더 안전할까요?</p>
+        <div class="comp">
+          <div class="box bad"><h3>😟 옛날 방식</h3><ul>
+            <li>📓 공책이 하나뿐</li><li>✏️ 몰래 고쳐도 모름</li><li>🙈 확인이 어려움</li><li>🧍 한 명만 관리</li></ul></div>
+          <div class="box good"><h3>😄 블록체인</h3><ul>
+            <li>📚 모두가 같은 공책</li><li>🚫 고치면 바로 들통</li><li>🔍 누구나 재검증</li><li>🌍 모두가 감시</li></ul></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>🗳️ 비밀은 지키고, 확인은 누구나 — 블록체인 투표 시스템 · 거의 모든 칸을 클릭해 “왜?”를 알아보세요</footer>
+</div>
+
+<!-- ================= MODAL ================= -->
+<div class="overlay" id="overlay">
+  <div class="modal" id="modal">
+    <div class="top">
+      <button class="closebtn" id="closeBtn">✕</button>
+      <div class="tag" id="mTag"></div>
+      <h3 id="mTitle"></h3>
+      <div class="lead" id="mLead"></div>
+    </div>
+    <div class="body" id="mBody"></div>
+    <div class="kbd">ESC 키 또는 바깥을 누르면 닫혀요</div>
+  </div>
+</div>
+
+<script>
+/* ====== 색상 ====== */
+const css=getComputedStyle(document.documentElement),C=n=>css.getPropertyValue(n).trim();
+
+/* ====== 상세 설명 데이터 ====== */
+const COLOR={secret:C('--secret'),verify:C('--verify'),tamper:C('--tamper'),watch:C('--watch'),ink:C('--ink')};
+const DATA={
+  /* --- 4대 기둥 (핵심) --- */
+  secret:{c:'secret',tag:'🤫 핵심 원리',title:'왜 비밀이 완벽히 지켜질까?',
+    lead:'표는 모두가 보는 공책에 적히는데, 어떻게 “누가 뽑았는지”는 숨길까요? 3중 장치가 있어요.',
+    reasons:[
+      {t:'이름과 표를 끊어버려요 (익명화)',p:'투표 자격만 확인하고, 그 다음엔 이름 대신 ‘비밀 번호표’를 줘요. 이름과 번호표의 연결고리를 그 순간 끊어버려서, 번호표만 봐서는 누구 것인지 아무도 알 수 없어요.',ex:'예) 공책엔 “철수가 1번”이 아니라 “#7X9K가 1번”이라고만 적혀요.'},
+      {t:'표를 자물쇠로 잠가요 (암호화)',p:'투표 내용 자체를 비밀 자물쇠로 잠근 채로 공책에 올려요. 자물쇠가 잠겨 있어서, 공책을 들여다봐도 안에 무엇을 골랐는지 보이지 않아요.',ex:'예) 비밀 일기장에 자물쇠를 채우는 것과 같아요. 🔒'},
+      {t:'안 열어보고도 규칙을 증명해요 (영지식증명)',p:'“나는 후보 한 명에게 딱 한 표만 넣었어요”를, 표 내용은 전혀 보여주지 않고도 수학으로 증명해요. 그래서 부정은 막으면서 비밀은 지켜져요.',ex:'예) 가방을 안 열고도 “숙제가 들어있어요”를 증명하는 마법 🎁'},
+    ]},
+  verify:{c:'verify',tag:'🔍 핵심 원리',title:'왜 표를 다시 확인할 수 있을까?',
+    lead:'비밀인데도 “재검증(다시 세기)”이 되는 비밀은, 표가 사라지지 않고 영원히 남아있기 때문이에요.',
+    reasons:[
+      {t:'모든 표가 공책에 영원히 남아요',p:'한 번 투표하면 그 표(잠긴 채로)가 블록체인 공책에 영구히 기록돼요. 표가 중간에 사라지거나 버려질 수 없어서, 언제든 처음부터 다시 셀 수 있어요.',ex:'예) 지우개로 못 지우는 펜으로 적은 출석부와 같아요.'},
+      {t:'내 표가 들어갔는지 내가 직접 확인해요',p:'나만 아는 비밀 번호표로 “내 표가 공책에 잘 들어갔다”를 직접 확인할 수 있어요. 그런데 남들은 그 번호표가 누구 것인지 모르니 비밀은 그대로예요.',ex:'예) 택배 송장번호로 내 택배만 추적하는 것과 같아요. 📦'},
+      {t:'누구나 합계를 다시 셀 수 있어요',p:'공책이 모두에게 공개돼 있어서, 의심되면 누구든 표 전체를 처음부터 다시 더해볼 수 있어요. 결과가 같으면 “정확하다”가 증명돼요.',ex:'예) 시험 점수를 반 전체가 다시 더해보고 “맞네!” 하는 것.'},
+    ]},
+  tamper:{c:'tamper',tag:'🛡️ 핵심 원리',title:'왜 한 표도 몰래 못 바꿀까?',
+    lead:'블록체인은 페이지(블록)들이 ‘도장’으로 사슬처럼 연결돼 있어서, 하나만 바꿔도 전부 들통나요.',
+    reasons:[
+      {t:'블록마다 앞 블록의 도장이 찍혀 있어요',p:'각 블록에는 바로 앞 블록을 본떠 만든 특별한 도장(해시)이 들어있어요. 도장은 내용이 조금만 달라져도 완전히 다른 모양으로 변해요.',ex:'예) 앞 페이지를 사진 찍어 다음 페이지에 붙여두는 것과 같아요.'},
+      {t:'하나 고치면 뒤가 전부 깨져요',p:'가운데 표 하나를 몰래 바꾸면, 그 블록의 도장이 달라지고 → 다음 블록의 도장과 안 맞고 → 그 뒤도 줄줄이 안 맞아요. 와르르 무너지듯 들통나요.',ex:'예) 도미노처럼 하나 건드리면 전부 티가 나요. 🁢'},
+      {t:'바꾸려면 모두의 공책을 동시에 바꿔야 해요',p:'공책은 수많은 사람이 똑같이 나눠 갖고 있어요. 진짜로 위조하려면 그 모든 공책을 동시에, 들키지 않고 바꿔야 하는데 이건 사실상 불가능해요.',ex:'예) 반 친구 30명의 공책을 동시에 몰래 고치는 건 불가능하죠.'},
+    ]},
+  watch:{c:'watch',tag:'🌍 핵심 원리',title:'왜 한 명이 거짓말을 못 할까?',
+    lead:'공책을 한 사람이 아니라 ‘모두’가 나눠 갖고 함께 검사하기 때문이에요. 이걸 분산·합의라고 해요.',
+    reasons:[
+      {t:'공책이 한 명이 아니라 모두에게 있어요 (분산)',p:'옛날엔 관리자 한 명만 공책을 가졌지만, 블록체인은 똑같은 공책을 수많은 컴퓨터가 나눠 가져요. 한 곳이 고장 나거나 거짓말해도 나머지가 진실을 지켜요.',ex:'예) 한 권을 잃어버려도 29권이 똑같이 남아있어요.'},
+      {t:'새 표는 다수가 동의해야 추가돼요 (합의)',p:'새로운 투표를 공책에 추가하려면, 많은 참가자가 “이거 규칙에 맞네”라고 함께 동의해야 해요. 한 명이 가짜 표를 넣으려 하면 나머지가 거절해요.',ex:'예) 반장 혼자 못 정하고, 반 전체가 손들어 정하는 것. ✋'},
+      {t:'모두가 결과를 직접 볼 수 있어요 (투명)',p:'과정과 기록이 모두에게 열려 있어서 누구나 감시자가 될 수 있어요. 숨길 곳이 없으니 부정이 끼어들기 어려워요.',ex:'예) 유리상자 안에서 표를 세는 것과 같아요. 🔎'},
+    ]},
+
+  /* --- 통계 카드 --- */
+  'stat-total':{c:'secret',tag:'📊 숫자 설명',title:'발급된 비밀 번호표 320장',
+    lead:'투표할 자격이 있는 사람에게 나눠준 ‘이름과 분리된’ 비밀 표의 개수예요.',
+    reasons:[{t:'왜 이름이 아니라 번호표일까?',p:'자격 확인은 이름으로 하지만, 투표는 번호표로만 해요. 이렇게 바꿔주는 순간 비밀투표가 시작돼요.',ex:'320명에게 자격을 확인하고 번호표를 줬다는 뜻이에요.'}]},
+  'stat-cast':{c:'verify',tag:'📊 숫자 설명',title:'실제 투표한 표 300장',
+    lead:'번호표를 받은 320명 중 실제로 투표를 끝낸 표의 수예요.',
+    reasons:[{t:'표가 어디 갔는지 알 수 있어요',p:'320장 중 300장이 들어왔으니 20명은 아직 안 했다는 걸 누구나 확인할 수 있어요. 표는 사라지지 않아요.',ex:'참여율 = 300 ÷ 320 ≈ 94%'}]},
+  'stat-block':{c:'tamper',tag:'📊 숫자 설명',title:'블록체인에 쌓인 블록 75개',
+    lead:'투표 기록이 담긴 ‘페이지’의 개수예요. 페이지들은 도장으로 사슬처럼 연결돼요.',
+    reasons:[{t:'블록이 많을수록 더 단단해요',p:'블록이 사슬처럼 길게 연결될수록, 가운데를 바꾸려면 더 많은 걸 한꺼번에 바꿔야 해서 위조가 더 어려워져요.',ex:'75개의 페이지가 도장으로 줄줄이 연결돼 있어요. ⛓️'}]},
+  'stat-verify':{c:'verify',tag:'📊 숫자 설명',title:'재검증 통과율 100%',
+    lead:'다시 검사했을 때 “기록이 모두 정확하다”고 확인된 비율이에요.',
+    reasons:[{t:'100%는 무슨 뜻일까?',p:'모든 블록의 도장이 서로 맞고, 표 개수도 정확하다는 뜻이에요. 한 군데라도 어긋나면 100%가 안 나와요.',ex:'어긋난 곳이 0개 = 위변조가 없었다는 증거.'}]},
+
+  /* --- 5단계 --- */
+  step1:{c:'secret',tag:'1단계',title:'자격 확인 — “너 투표할 수 있어!”',
+    lead:'투표하기 전, 진짜 자격이 있는 사람인지 먼저 확인하는 단계예요.',
+    reasons:[
+      {t:'왜 필요할까?',p:'자격 없는 사람이 투표하거나, 한 사람이 두 번 투표하는 걸 막기 위해서예요.',ex:'출석부로 “우리 반 학생 맞네!”를 확인하는 것.'},
+      {t:'비밀과 무슨 상관?',p:'여기서 이름을 확인해 두고, 다음 단계에서 이름을 ‘떼어내기’ 때문에 비밀이 시작되는 출발점이에요.'},
+    ]},
+  step2:{c:'secret',tag:'2단계',title:'번호표 받기 — 이름을 떼는 순간',
+    lead:'자격이 확인되면 이름 대신 비밀 번호표를 받아요. 비밀투표의 핵심 단계예요.',
+    reasons:[
+      {t:'이름과 표를 끊어요',p:'번호표를 받는 순간 이름과의 연결이 끊겨요. 그래서 나중에 표를 봐도 누구 것인지 알 수 없어요.',ex:'놀이공원에서 이름 대신 손목밴드를 받는 것과 비슷해요.'},
+      {t:'딱 한 장만 줘요',p:'한 사람당 번호표는 한 장이라, 두 번 투표(부정)를 막아요.'},
+    ]},
+  step3:{c:'tamper',tag:'3단계',title:'투표 & 잠금 — 자물쇠 채워 기록',
+    lead:'원하는 후보를 고르고, 그 표를 자물쇠로 잠근 채 블록체인 공책에 올려요.',
+    reasons:[
+      {t:'왜 잠가서 올릴까?',p:'잠긴 채 올리면 공책을 봐도 내용이 안 보여서 비밀이 지켜지고, 동시에 표는 기록으로 남아요.',ex:'잠긴 투표함에 표를 넣는 것과 같아요. 🔒'},
+      {t:'올리면 못 바꿔요',p:'한 번 기록되면 모두의 공책에 동시에 복사돼서 누구도 고칠 수 없어요.'},
+    ]},
+  step4:{c:'watch',tag:'4단계',title:'개표 — 누군지 모른 채 숫자만 세기',
+    lead:'투표가 끝나면 표를 세는데, 누가 뽑았는지는 모른 채 ‘숫자’만 합쳐요.',
+    reasons:[
+      {t:'비밀을 지키며 세요',p:'영지식증명·암호 기술 덕분에, 표 내용을 한 명 한 명 까보지 않고도 합계를 정확히 낼 수 있어요.',ex:'결과: “1번 132표, 2번 98표” 처럼 숫자만 나와요.'},
+      {t:'모두가 함께 세요',p:'한 사람이 아니라 여러 참가자가 같이 세고 결과가 맞는지 서로 비교해요.'},
+    ]},
+  step5:{c:'verify',tag:'5단계',title:'재검증 — 누구나 다시 확인',
+    lead:'결과가 나온 뒤에도, 의심되면 누구든 처음부터 다시 검사할 수 있어요.',
+    reasons:[
+      {t:'기록이 다 남아있어요',p:'모든 표와 도장이 공책에 남아있어서, 언제든 다시 세고 다시 검사할 수 있어요.',ex:'몇 년 뒤에도 “그때 표 정확했나?”를 확인 가능해요.'},
+      {t:'내 표도 직접 확인',p:'내 번호표로 내 표가 잘 들어갔는지 확인하면서도, 남들에겐 비밀이 유지돼요.'},
+    ]},
+
+  /* --- 장부 --- */
+  ledger:{c:'tamper',tag:'⛓️ 장부 읽는 법',title:'이 한 줄(블록)이 말해주는 것',
+    lead:'블록 한 줄에 비밀 보장과 검증 가능이 동시에 담겨 있어요.',
+    reasons:[
+      {t:'번호표만 있고 이름은 없어요',p:'“#7X9K”처럼 비밀 번호표만 적혀서, 누가 뽑았는지는 알 수 없어요. → 비밀 보장',ex:'이름이 없으니 추적 불가!'},
+      {t:'표 내용은 잠겨 있어요',p:'🔒 잠김 표시처럼 내용이 암호로 잠겨 있어서 무엇을 골랐는지 안 보여요. → 비밀 보장'},
+      {t:'이전 블록 도장이 들어있어요',p:'“a1f9…” 같은 도장(해시)이 앞 블록과 연결돼 있어, 하나만 바꿔도 다 들통나요. → 위변조 불가 & 검증 가능',ex:'이 도장 덕분에 사슬이 끊기지 않았는지 확인할 수 있어요.'},
+    ]},
+
+  /* --- 개념 --- */
+  enc:{c:'secret',tag:'✨ 마법 1',title:'암호화 — 표를 자물쇠로 잠그기',
+    lead:'표 내용을 비밀 열쇠로 잠가서, 열쇠 없이는 아무도 못 읽게 만드는 기술이에요.',
+    reasons:[
+      {t:'어떻게 비밀이 될까?',p:'잠긴 표는 겉으로 보면 의미 없는 글자 덩어리예요. 그래서 공책에 올려도 내용이 안 새어나가요.',ex:'비밀 일기장 자물쇠와 똑같아요. 🔒'},
+      {t:'그래도 셀 수 있어요',p:'특별한 방법으로, 잠긴 채로도 표 개수와 합계는 계산할 수 있어요.'},
+    ]},
+  zkp:{c:'verify',tag:'✨ 마법 2',title:'영지식증명 — 안 보여주고 증명하기',
+    lead:'내용은 하나도 보여주지 않으면서, “규칙은 지켰다”는 사실만 증명하는 신기한 수학이에요.',
+    reasons:[
+      {t:'무엇을 증명할까?',p:'“나는 후보 한 명에게 딱 한 표만 넣었다” 같은 규칙을, 표를 까보지 않고 증명해요.',ex:'가방 안 열고 “숙제 있어요” 증명하기 🎁'},
+      {t:'왜 중요할까?',p:'부정(두 표, 잘못된 표)은 막으면서도 비밀은 완벽히 지킬 수 있게 해줘요. 비밀+검증을 동시에 가능하게 하는 핵심이에요.'},
+    ]},
+  anon:{c:'watch',tag:'✨ 마법 3',title:'익명화 — 이름표 떼고 번호표 붙이기',
+    lead:'사람과 표 사이의 연결을 끊어서, 표를 봐도 누구 것인지 모르게 만드는 기술이에요.',
+    reasons:[
+      {t:'어떻게 끊을까?',p:'자격 확인이 끝나면 이름을 떼고 무작위 번호표를 줘요. 이름↔번호표 연결 정보를 남기지 않아요.',ex:'이름표 떼고 번호표 붙이기 🏷️'},
+      {t:'그래도 한 번만 투표해요',p:'번호표는 한 사람당 하나라, 익명이면서도 중복 투표는 막혀요.'},
+    ]},
+};
+
+/* ====== 모달 제어 ====== */
+const overlay=document.getElementById('overlay'),modal=document.getElementById('modal');
+function openModal(key){
+  const d=DATA[key];if(!d)return;
+  const col=COLOR[d.c]||COLOR.ink;
+  document.getElementById('mTag').textContent=d.tag;
+  document.getElementById('mTag').style.color=col;
+  document.getElementById('mTitle').textContent=d.title;
+  document.getElementById('mLead').textContent=d.lead;
+  document.getElementById('mBody').innerHTML=d.reasons.map((r,i)=>`
+    <div class="reason">
+      <div class="rn" style="background:${col}">${i+1}</div>
+      <div>
+        <div class="rt">${r.t}</div>
+        <div class="rp">${r.p}</div>
+        ${r.ex?`<div class="ex">💡 ${r.ex}</div>`:''}
+      </div>
+    </div>`).join('');
+  overlay.classList.add('on');
+  document.body.style.overflow='hidden';
+}
+function closeModal(){overlay.classList.remove('on');document.body.style.overflow=''}
+document.querySelectorAll('[data-key]').forEach(el=>el.addEventListener('click',()=>openModal(el.dataset.key)));
+document.getElementById('closeBtn').addEventListener('click',closeModal);
+overlay.addEventListener('click',e=>{if(e.target===overlay)closeModal()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
+
+/* ====== 차트 ====== */
+Chart.defaults.color=C('--ink2');
+Chart.defaults.font.family="'Pretendard',sans-serif";
+Chart.defaults.font.weight='600';
+new Chart(document.getElementById('barChart'),{type:'bar',
+  data:{labels:['🍎 1번','🍊 2번','🍇 3번','🍋 무효'],
+    datasets:[{data:[132,98,62,8],backgroundColor:[C('--secret'),C('--tamper'),C('--watch'),'#cdbfd6'],borderRadius:10,barThickness:48}]},
+  options:{plugins:{legend:{display:false}},
+    scales:{y:{grid:{color:C('--line')},ticks:{stepSize:30}},x:{grid:{display:false},ticks:{font:{size:14,weight:'700'}}}}}});
+new Chart(document.getElementById('pieChart'),{type:'doughnut',
+  data:{labels:['투표함','아직 안 함'],datasets:[{data:[300,20],backgroundColor:[C('--verify'),'#ffcf9e'],borderWidth:0,cutout:'64%'}]},
+  options:{plugins:{legend:{position:'bottom',labels:{font:{size:13,weight:'700'},padding:16,usePointStyle:true,pointStyle:'circle'}}}}});
+
+/* ====== 숫자 카운트업 ====== */
+function up(id,to){let el=document.getElementById(id),n=0,s=Math.ceil(to/40);
+  let t=setInterval(()=>{n+=s;if(n>=to){n=to;clearInterval(t)}el.textContent=n;},22);}
+up('s1',320);up('s2',300);up('s3',75);
+</script>
+</body>
+</html>
