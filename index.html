@@ -77,8 +77,9 @@
   header::after{content:"⛓️";position:absolute;right:34px;top:46px;font-size:84px;opacity:.18;
     animation:float 4s ease-in-out infinite}
   .kicker{font-size:14px;font-weight:800;color:var(--watch);letter-spacing:.04em}
-  header h1{font-size:38px;font-weight:800;margin-top:10px;letter-spacing:-.03em;line-height:1.28}
-  header h1 .hl{background:linear-gradient(transparent 56%,#ffd060 56%,#ffb43a 100%);padding:0 4px;border-radius:3px}
+  header h1{font-size:38px;font-weight:800;margin-top:10px;letter-spacing:-.03em;line-height:1.28;word-break:keep-all}
+  header h1 .hl{background:linear-gradient(transparent 56%,#ffd060 56%,#ffb43a 100%);padding:0 4px;border-radius:3px;
+    -webkit-box-decoration-break:clone;box-decoration-break:clone}
   header p{font-size:17px;color:var(--ink2);margin-top:14px;max-width:720px;font-weight:500}
   .tip{margin-top:18px;font-size:14px;color:#9a6a1f;font-weight:700;display:inline-flex;gap:8px;
     align-items:center;background:#ffdb9c;border:1px solid #ffbe6a;padding:9px 15px;border-radius:13px;
@@ -304,6 +305,49 @@
   .ooarrow{font-size:22px;text-align:center;color:var(--ink2);font-weight:800}
 
   .credit{margin-top:10px;font-weight:800;color:var(--ink);font-size:13.5px}
+
+  /* ===================== 모바일 최적화 ===================== */
+  @media(max-width:640px){
+    body{padding:14px 12px 50px;line-height:1.65}
+    .wrap{max-width:100%}
+    header{padding:24px 18px;border-radius:20px}
+    header::after{font-size:50px;top:18px;right:14px;opacity:.12;animation:none}
+    .kicker{font-size:12px}
+    header h1{font-size:25px;line-height:1.32;margin-top:8px}
+    header p{font-size:14px;margin-top:11px}
+    .tip{font-size:12.5px;padding:8px 12px;margin-top:14px}
+    .pillars{gap:10px;margin-top:18px}
+    .pillar{padding:14px;border-radius:15px}
+    .pillar .pe{font-size:26px}.pillar .pt{font-size:15.5px}
+    section{margin-top:22px}
+    .h{gap:8px;margin-bottom:12px}
+    .h h2{font-size:18.5px}.h span{font-size:12.5px;flex-basis:100%}
+    .card{padding:16px;border-radius:16px}
+    .grid{gap:12px}
+    .stat .num{font-size:27px}.stat .ic{font-size:21px}
+    .flow{gap:9px}.step{padding:14px 10px}.step .e{font-size:26px}.step .t{font-size:14px}
+    .sim{gap:14px}
+    .candidate{padding:12px 13px}.candidate .ce{font-size:26px}.candidate .cn{font-size:15px}
+    .proc::before{left:15px}.ps-dot{width:32px;height:32px;font-size:16px}
+    table{font-size:13px}th,td{padding:9px 8px}
+    .mono{font-size:11px}
+    .keys{grid-template-columns:repeat(5,1fr);gap:7px}.keyb{font-size:17px}
+    .homo{font-size:18px;gap:7px}.lockbox{min-width:54px;padding:8px 10px}.lockbox .lbn{font-size:19px}
+    .cblock{flex-basis:calc(50% - 5px);min-width:0}
+    .idcard{flex-basis:100%}
+    .mnode{padding:6px 7px;font-size:10.5px}
+    .modal .top{padding:22px 20px 16px}.modal .body{padding:8px 20px 22px}
+    .modal h3{font-size:21px}.modal .lead{font-size:14px}
+    .reason .rt{font-size:15px}.reason .rp{font-size:13.5px}
+    .closebtn{top:18px;right:18px}
+    footer{margin-top:30px}
+    /* 토글 컴팩트 + 단어 단위 줄바꿈 */
+    .langtoggle{position:static;margin:0 auto 8px;width:max-content;justify-content:center;font-size:12.5px}
+    .langtoggle button{padding:6px 14px}
+    .leveltoggle{top:8px;font-size:12px;padding:3px 4px 3px 9px}
+    .leveltoggle button{padding:6px 9px}.leveltoggle .lvlbl{font-size:11px}
+  }
+  header h1,.h h2,.modal h3,header p,.feat-lead,.pillar .pd,.stat .lbl{word-break:keep-all}
 </style>
 </head>
 <body>
