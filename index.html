@@ -224,15 +224,15 @@
   @keyframes burst{to{transform:translate(var(--tx),var(--ty)) rotate(var(--r));opacity:0}}
 
   /* ===================== v3.0 ===================== */
-  .leveltoggle{position:fixed;top:18px;left:18px;z-index:40;display:flex;align-items:center;gap:6px;
-    background:var(--card);border:2px solid var(--secret);border-radius:999px;padding:4px 4px 4px 12px;
+  .leveltoggle{position:sticky;top:14px;z-index:41;display:flex;align-items:center;gap:6px;width:max-content;margin:0 auto 16px;
+    background:var(--card);border:2px solid var(--watch);border-radius:999px;padding:4px 4px 4px 13px;
     box-shadow:var(--shadow);font-size:13px;font-weight:800}
-  .leveltoggle .lvlbl{color:var(--secret);font-size:12px;margin-right:2px}
-  .leveltoggle button{border:none;background:none;cursor:pointer;padding:7px 12px;border-radius:999px;
+  .leveltoggle .lvlbl{color:#b25e0a;font-size:12px;margin-right:2px}
+  .leveltoggle button{border:none;background:none;cursor:pointer;padding:7px 13px;border-radius:999px;
     color:var(--ink2);font-weight:800;transition:.18s;font-family:inherit}
-  .leveltoggle button.act{background:var(--secret);color:#fff;box-shadow:0 4px 12px rgba(255,77,141,.35)}
-  .leveltoggle button:not(.act):hover{color:var(--secret)}
-  @media(max-width:600px){.leveltoggle,.langtoggle{position:static;margin:0 auto 10px}.langtoggle{justify-content:center}.leveltoggle{width:max-content}}
+  .leveltoggle button.act{background:var(--watch);color:#fff;box-shadow:0 4px 12px rgba(255,138,30,.35)}
+  .leveltoggle button:not(.act):hover{color:var(--watch)}
+  @media(max-width:600px){.langtoggle{position:static;margin:0 auto 10px;justify-content:center}.leveltoggle{top:8px}}
 
   .depthnote{font-size:13px;font-weight:600;color:#8a5512;background:#ffdb9c;border:1px dashed #ffbe6a;
     border-radius:12px;padding:10px 13px;margin-top:14px;line-height:1.55}
